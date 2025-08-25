@@ -1,0 +1,2112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة أسعار المطبوعات (ذكية ومحسنة)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 95%;
+        }
+        .card {
+            margin-bottom: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: none;
+        }
+        .form-label { font-weight: 600; }
+        #results-card {
+            position: sticky;
+            top: 20px;
+            background-color: #ffffff;
+        }
+        #results-card .card-header {
+            background-color: #007bff;
+            color: white;
+            font-weight: 700;
+            border-radius: 0.75rem 0.75rem 0 0 !important;
+        }
+        #total-price {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #28a745;
+        }
+        .cost-item { display: flex; justify-content: space-between; padding: 0.6rem 0.2rem; border-bottom: 1px solid #e9ecef; }
+        .cost-item:last-child { border-bottom: none; }
+        .cost-label { font-weight: 600; }
+        .cost-value { font-weight: 600; color: #343a40;}
+        .cost-header { font-weight: bold; color: #0d6efd; padding: 0.8rem 0; text-align: center; background-color: #e9f5ff; border-radius: 5px; margin: 0.8rem 0 0.5rem; }
+        .form-check.form-switch { padding-right: 3.5em; padding-left: 0; }
+        .form-check.form-switch .form-check-input { margin-right: -4.5em; margin-left: 0; }
+        /* --- STYLES FOR WIZARD --- */
+        .wizard-nav {
+            padding: 0;
+            margin: 0 0 2rem 0;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            border-radius: 0.75rem;
+            background-color: #e9ecef;
+            padding: 0.5rem;
+        }
+        .wizard-nav-item {
+            flex: 1;
+            text-align: center;
+        }
+        .wizard-nav-link {
+            display: block;
+            padding: 0.75rem 0.5rem;
+            background-color: #e9ecef;
+            color: #495057;
+            font-weight: 700;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .wizard-nav-link.active {
+            background-color: #0d6efd;
+            color: white;
+            box-shadow: 0 4px 10px rgba(13, 110, 253, 0.4);
+        }
+        .wizard-nav-link:not(.active):hover {
+            background-color: #dee2e6;
+        }
+        .tab-pane {
+            display: none;
+        }
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .wizard-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #dee2e6;
+        }
+        /* --- STYLES FOR LAYOUT VISUALS --- */
+        .section-subheader {
+            font-weight: bold;
+            font-size: 1.15rem;
+            color: #0d6efd;
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 0.5rem;
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .layout-result { background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px solid #e9ecef; }
+        .layout-result-item { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; font-size: 0.95rem; }
+        .layout-result-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
+        .visuals-container { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; margin: 20px 0; gap: 20px; min-height: 100px; }
+        .sheet-visual-wrapper { text-align: center; margin-bottom: 20px; }
+        .sheet-visual { border: 2px solid #34495e; position: relative; margin: 0 auto; background-color: #fff; overflow: hidden; }
+        .visual-title { margin-top: 10px; font-weight: bold; color: #2c3e50; font-size: 16px; }
+        .item-on-sheet { position: absolute; box-sizing: border-box; border-radius: 2px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: bold; }
+        .card.normal { background-color: rgba(52, 152, 219, 0.8); border: 1px solid #2980b9; }
+        .card.rotated { background-color: rgba(155, 89, 182, 0.8); border: 1px solid #8e44ad; }
+        .sheet-on-farkh.normal { background-color: #f79552; border: 1px solid #e68a41; }
+        .sheet-on-farkh.rotated { background-color: #82ca9c; border: 1px solid #71b88b; }
+        .wasted-area { background-color: rgba(231, 76, 60, 0.4); position: absolute; }
+        .warning { color: #e74c3c; font-weight: bold; margin-top: 15px; }
+        .custom-size-group { margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px; display: flex; gap: 15px; }
+        .finish-option { background: #fdfdff; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; border: 1px solid #e9ecef; }
+        .form-section { display: none; }
+        .form-section.active { display: block; animation: fadeIn 0.5s; }
+        .auto-choice-note { font-size: 0.8rem; color: #28a745; font-weight: bold; height: 1.2em; }
+        /* --- Styles for Gripper --- */
+        .gripper-margin {
+            background-color: rgba(128, 128, 128, 0.5);
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .gripper-text {
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .gripper-text.vertical {
+            transform: rotate(-90deg);
+        }
+        .visual-note {
+            font-size: 0.8rem;
+            color: #555;
+            text-align: center;
+            margin-top: 5px;
+            background-color: #fffbe6;
+            border: 1px solid #ffe58f;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        .gripper-warning {
+            background-color: #fff3f3;
+            border: 1px solid #ffb8b8;
+            color: #c0392b;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="text-center mb-4">
+            <h1>قسم طباعة الافست (الذكي)</h1>
+            <p class="lead">أداة شاملة لحساب تكاليف الطباعة مع تحسين تلقائي للتكاليف</p>
+        </div>
+        <!-- START: New Product Type Selector -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row justify-content-center">
+                    <div class="col-md-5">
+                        <label for="productType" class="form-label fw-bold h5">نوع المنتج</label>
+                        <select id="productType" class="form-select form-select-lg">
+                            <option value="book" selected>كتاب او كتالوج</option>
+                            <option value="notebook">نوت بوك</option>
+                            <option value="card">كارت او برشور</option>
+                            <option value="box_bag">علبة أو شنط</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END: New Product Type Selector -->
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Wizard Navigation -->
+                <ul class="wizard-nav">
+                    <li class="wizard-nav-item"><a class="wizard-nav-link active" href="#step1" data-step="1">1. الورق الداخلي</a></li>
+                    <li class="wizard-nav-item"><a class="wizard-nav-link" href="#step2" data-step="2">2. الغلاف / المنتج</a></li>
+                    <li class="wizard-nav-item"><a class="wizard-nav-link" href="#step3" data-step="3">3. التشطيبات النهائية</a></li>
+                </ul>
+                <form id="pricing-form" onsubmit="return false;">
+                    <div class="card">
+                        <div class="card-body p-4">
+                            <!-- Step 1: Internal Content -->
+                            <div id="step1" class="tab-pane active">
+                                <h4 class="mb-4" id="step1-title">مواصفات الورق الداخلي للكتاب</h4>
+                                <div class="row">
+                                    <!-- Left Column for Inputs -->
+                                    <div class="col-lg-6">
+                                        <div class="section-subheader">المواصفات الأساسية</div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3"><label for="bookCount" class="form-label">الكمية</label><input type="number" id="bookCount" class="form-control" value="1000"></div>
+                                            <div class="col-md-6 mb-3"><label for="bookPages" class="form-label">عدد الصفحات الداخلية</label><input type="number" id="bookPages" class="form-control" value="96"></div>
+                                            <div class="col-md-6 mb-3"><label for="bookWidth" class="form-label">عرض القطعة (سم)</label><input type="number" id="bookWidth" class="form-control" value="17"></div>
+                                            <div class="col-md-6 mb-3"><label for="bookHeight" class="form-label">طول القطعة (سم)</label><input type="number" id="bookHeight" class="form-control" value="24"></div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="signatureSize" class="form-label">نوع الملزمة</label>
+                                                <select id="signatureSize" class="form-select">
+                                                    <option value="auto" selected>تلقائي (الأفضل تكلفة)</option>
+                                                    <option value="2">2 صفحات</option><option value="4">4 صفحات</option><option value="8">8 صفحات</option><option value="16">16 صفحة</option><option value="32">32 صفحة</option><option value="64">64 صفحة</option>
+                                                </select>
+                                                <div id="autoSignatureNote" class="auto-choice-note"></div>
+                                            </div>
+                                        </div>
+                                        <div id="book-calc-info" class="alert alert-info small p-2 mt-2"></div>
+                                        <div class="section-subheader">ورق وطباعة المحتوى الداخلي</div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3"><label for="paperType" class="form-label">نوع الورق</label><select id="paperType" class="form-select"></select></div>
+                                            <div class="col-md-6 mb-3"><label for="paperGrammage" class="form-label">الجراماج</label><select id="paperGrammage" class="form-select"></select></div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="sheetSize" class="form-label">مقاس فرخ الطباعة</label>
+                                                <select id="sheetSize" class="form-select">
+                                                    <option value="auto" selected>تلقائي (الأفضل تكلفة)</option>
+                                                    <option value="kamel">كامل مقاس (100 × 70 سم)</option>
+                                                    <option value="noss">نص مقاس (70 × 50 سم)</option>
+                                                    <option value="roba">ربع مقاس (50 × 35 سم)</option>
+                                                    <option value="thomn">ثمن مقاس (35 × 25 سم)</option>
+                                                    <option value="a3">A3 مقاس (42 × 29.7 سم)</option>
+                                                    <option value="a4">A4 مقاس (29.7 × 21 سم)</option>
+                                                    <option value="tesaat">تسعات مقاس (33.3 × 23.3 سم)</option>
+                                                    <option value="tegary">تجاري مقاس (30 × 20 سم)</option>
+                                                    <option value="gaier_full">جاير كامل (88 × 66 سم)</option>
+                                                    <option value="gaier_half">جاير نص (66 × 44 سم)</option>
+                                                    <option value="gaier_quarter">جاير ربع (44 × 33 سم)</option>
+                                                    <option value="gaier_eighth">جاير ثمن (33 × 22 سم)</option>
+                                                    <option value="custom">مقاس مخصص...</option>
+                                                </select>
+                                                <div id="autoSheetNote" class="auto-choice-note"></div>
+                                                <div id="customInternalSheetSizeGroup" class="custom-size-group" style="display: none;">
+                                                    <input type="number" id="customInternalSheetWidth" class="form-control" placeholder="عرض (سم)">
+                                                    <input type="number" id="customInternalSheetHeight" class="form-control" placeholder="طول (سم)">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-3"><label for="printColors" class="form-label">عدد ألوان الطباعة</label><input type="number" id="printColors" class="form-control" value="4"></div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="printType" class="form-label">نوع الطباعة</label>
+                                                <select id="printType" class="form-select">
+                                                    <option value="single">وجه</option>
+                                                    <option value="double" selected>وجهين</option>
+                                                    <option value="work_and_turn">طبعة وقلبة</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Right Column for NEW Visuals -->
+                                    <div class="col-lg-6">
+                                        <div class="section-subheader">الرسم التوضيحي لتقسيم الشيت</div>
+                                        <div id="internal_layout_output" class="layout-result"></div>
+                                        <div id="internal_layout_visuals" class="visuals-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Step 2: Cover -->
+                           <div id="step2" class="tab-pane">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="enableCover" checked>
+                                    <label class="form-check-label h5" for="enableCover" id="cover-label">تفعيل حساب الغلاف</label>
+                                </div>
+                                <div id="cover-options" class="form-section active">
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="section-subheader" id="step2-subheader1">أبعاد وتقسيم المنتج</div>
+                                             <div class="row">
+                                                 <div class="col-md-4 mb-3" id="itemQuantityContainer" style="display: none;">
+                                                     <label for="itemQuantity" class="form-label">الكمية المطلوبة</label>
+                                                     <input type="number" id="itemQuantity" class="form-control" value="1000">
+                                                 </div>
+                                                 <div class="col-md-4 mb-3"><label for="coverWidth" class="form-label" id="coverWidthLabel">عرض الغلاف مفتوح (سم)</label><input type="number" id="coverWidth" class="form-control" value="35"></div>
+                                                 <div class="col-md-4 mb-3"><label for="coverHeight" class="form-label" id="coverHeightLabel">طول الغلاف (سم)</label><input type="number" id="coverHeight" class="form-control" value="24"></div>
+                                                 <div class="col-md-4 mb-3" id="coverDepthContainer" style="display: none;">
+                                                     <label for="coverDepth" class="form-label">الارتفاع (سم)</label>
+                                                     <input type="number" id="coverDepth" class="form-control" value="5">
+                                                 </div>
+                                                 <div class="col-md-12 mb-3" id="flatSizeInfo" style="display: none;">
+                                                    <div class="alert alert-primary small p-2 mb-0">
+                                                        مقاس المسطح المحسوب للطباعة: <strong id="calculatedFlatSize"></strong>
+                                                    </div>
+                                                 </div>
+                                                 <div class="col-md-12 mb-3">
+                                                    <label for="coverSheetSelect" class="form-label" id="coverSheetSelectLabel">مقاس شيت الغلاف</label>
+                                                    <select id="coverSheetSelect" class="form-select">
+                                                        <option value="auto" selected>تلقائي (الأفضل تكلفة)</option>
+                                                        <option value="kamel">كامل مقاس (100 × 70 سم)</option>
+                                                        <option value="noss">نص مقاس (70 × 50 سم)</option>
+                                                        <option value="roba">ربع مقاس (50 × 35 سم)</option>
+                                                        <option value="thomn">ثمن مقاس (35 × 25 سم)</option>
+                                                        <option value="a3">A3 مقاس (42 × 29.7 سم)</option>
+                                                        <option value="a4">A4 مقاس (29.7 × 21 سم)</option>
+                                                        <option value="tesaat">تسعات مقاس (33.3 × 23.3 سم)</option>
+                                                        <option value="tegary">تجاري مقاس (30 × 20 سم)</option>
+                                                        <option value="gaier_full">جاير كامل (88 × 66 سم)</option>
+                                                        <option value="gaier_half">جاير نص (66 × 44 سم)</option>
+                                                        <option value="gaier_quarter">جاير ربع (44 × 33 سم)</option>
+                                                        <option value="gaier_eighth">جاير ثمن (33 × 22 سم)</option>
+                                                        <option value="custom">مقاس مخصص...</option>
+                                                    </select>
+                                                    <div id="autoCoverSheetNote" class="auto-choice-note"></div>
+                                                    <div id="customSheetSizeGroup" class="custom-size-group" style="display: none;">
+                                                        <input type="number" id="customSheetWidth" class="form-control" placeholder="عرض (سم)">
+                                                        <input type="number" id="customSheetHeight" class="form-control" placeholder="طول (سم)">
+                                                    </div>
+                                                 </div>
+                                             </div>
+                                             <div class="section-subheader" id="step2-subheader2">ورق وطباعة المنتج</div>
+                                             <div class="row">
+                                                 <div class="col-md-6 mb-3"><label for="coverPaperType" class="form-label">نوع الورق</label><select id="coverPaperType" class="form-select"></select></div>
+                                                 <div class="col-md-6 mb-3"><label for="coverPaperGrammage" class="form-label">الجراماج</label><select id="coverPaperGrammage" class="form-select"></select></div>
+                                                 <div class="col-md-6 mb-3"><label for="coverPrintColors" class="form-label">عدد ألوان الطباعة</label><input type="number" id="coverPrintColors" class="form-control" value="4"></div>
+                                                 <div class="col-md-6 mb-3">
+                                                    <label for="coverPrintType" class="form-label">نوع الطباعة</label>
+                                                    <select id="coverPrintType" class="form-select">
+                                                        <option value="single" selected>وجه</option>
+                                                        <option value="double">وجهين</option>
+                                                        <option value="work_and_turn">طبعة وقلبة</option>
+                                                    </select>
+                                                </div>
+                                             </div>
+                                            <div class="section-subheader" id="step2-subheader3">تشطيبات إضافية للمنتج</div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="finish-option">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <label class="form-check-label fw-bold" for="enableCoverLamination">سلوفان</label>
+                                                            <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableCoverLamination" checked></div>
+                                                        </div>
+                                                        <div id="cover-lamination-options" class="mt-2 form-section active pt-2 border-top">
+                                                            <div class="row">
+                                                                <div class="col-sm-auto"><label for="coverLaminationType" class="form-label">نوعه</label>
+                                                                    <select id="coverLaminationType" class="form-select" style="width: auto;">
+                                                                        <option value="matte" selected>مطفي</option>
+                                                                        <option value="glossy">لامع</option>
+                                                                        <option value="silver">فضي</option>
+                                                                        <option value="gold">ذهبي</option>
+                                                                        <option value="laser">ليزر</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-sm-auto"><label for="coverLaminationSides" class="form-label">عدد الأوجه</label>
+                                                                    <select id="coverLaminationSides" class="form-select" style="width: auto;">
+                                                                        <option value="single" selected>وجه واحد</option>
+                                                                        <option value="double">وجهين</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- MODIFIED: Restoring Cutting Options -->
+                                                <div class="col-md-6">
+                                                    <div class="finish-option" id="cutting-section">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <label class="form-check-label fw-bold" for="enableCutting">القص</label>
+                                                            <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableCutting" checked></div>
+                                                        </div>
+                                                        <div id="cutting-options" class="mt-2 form-section active pt-2 border-top">
+                                                            <label for="cuttingType" class="form-label">نوع القص</label>
+                                                            <select id="cuttingType" class="form-select">
+                                                                <option value="after" selected>بعد الطباعة</option>
+                                                                <option value="before">قبل الطباعة</option>
+                                                                <option value="before_after">قبل وبعد الطباعة</option>
+                                                                <option value="none">بدون</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div id="cover_layout_output" class="layout-result"></div>
+                                            <div id="cover_layout_visuals" class="visuals-container"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Step 3: Final Finishing -->
+                            <div id="step3" class="tab-pane">
+                                <h4 class="mb-4">التشطيبات النهائية والتجليد</h4>
+                                <div class="section-subheader" id="step3-subheader1">تشطيبات خاصة (تطبق على الغلاف/المنتج)</div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="finish-option">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <label class="form-check-label fw-bold" for="enableCoverStamping">بصمة (Hot Stamp)</label>
+                                                <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableCoverStamping"></div>
+                                            </div>
+                                            <div id="cover-stamping-options" class="mt-2 form-section pt-2 border-top">
+                                                <div class="row">
+                                                    <div class="col-sm-6 mb-3"><label for="coverStampDieCount" class="form-label">عدد الأكلاشيهات</label><input type="number" class="form-control" id="coverStampDieCount" value="1"></div>
+                                                    <div class="col-sm-6 mb-3"><label for="coverStampType" class="form-label">نوع الأكلاشيه</label><select id="coverStampType" class="form-select"><option value="1.5" selected>سماكة 1.5 مم</option><option value="3">سماكة 3 مم</option></select></div>
+                                                    <div class="col-sm-6 mb-3"><label for="coverStampWidth" class="form-label">عرض (سم)</label><input type="number" class="form-control" id="coverStampWidth" value="5"></div>
+                                                    <div class="col-sm-6 mb-3"><label for="coverStampHeight" class="form-label">طول (سم)</label><input type="number" class="form-control" id="coverStampHeight" value="5"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="finish-option">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <label class="form-check-label fw-bold" for="enableCoverKofraj">كوفراج (Emboss)</label>
+                                                <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableCoverKofraj"></div>
+                                            </div>
+                                            <div id="cover-kofraj-options" class="mt-2 form-section pt-2 border-top">
+                                                <div class="row">
+                                                    <div class="col-sm-6 mb-3"><label for="coverKofrajDieCount" class="form-label">عدد الأكلاشيهات</label><input type="number" class="form-control" id="coverKofrajDieCount" value="1"></div>
+                                                    <div class="col-sm-6 mb-3"><label for="coverKofrajType" class="form-label">نوع الأكلاشيه</label><select id="coverKofrajType" class="form-select"><option value="male" selected>دكر فقط</option><option value="female">نتاية فقط</option><option value="male_female">دكر ونتاية معًا</option></select></div>
+                                                    <div class="col-sm-6 mb-3"><label for="coverKofrajWidth" class="form-label">عرض (سم)</label><input type="number" class="form-control" id="coverKofrajWidth" value="5"></div>
+                                                    <div class="col-sm-6 mb-3"><label for="coverKofrajHeight" class="form-label">طول (سم)</label><input type="number" class="form-control" id="coverKofrajHeight" value="5"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="finish-option">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <label class="form-check-label fw-bold" for="enableCoverSpotUV">Spot UV</label>
+                                                <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableCoverSpotUV"></div>
+                                            </div>
+                                            <div id="cover-spotuv-options" class="mt-2 form-section pt-2 border-top">
+                                                <select id="coverSpotUVType" class="form-select"><option value="single">وجه واحد</option><option value="double">وجهين</option></select>
+                                            </div>
+                                        </div>
+                                         <div class="finish-option">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <label class="form-check-label fw-bold" for="enableUvCoating">UV Coating</label>
+                                                <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableUvCoating"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="section-subheader">التجميع والتقفيل</div>
+                                <div class="row">
+                                     <div class="col-md-6">
+                                         <div class="finish-option" id="die-cutting-main-section">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <label class="form-check-label fw-bold" for="enableDieCutting">تفعيل التكسير</label>
+                                                <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableDieCutting"></div>
+                                            </div>
+                                            <div id="die-cutting-options" class="mt-2 form-section pt-2 border-top">
+                                                 <p class="small text-muted mb-0">
+                                                    سيتم احتساب تكلفة **فرمة التكسير** و**تكلفة التشغيل** تلقائيًا بناءً على مقاس الشيت.
+                                                 </p>
+                                            </div>
+                                        </div>
+                                     </div>
+                                     <div class="col-md-6">
+                                         <div class="finish-option" id="assembly-section" style="display: none;">
+                                             <div class="d-flex justify-content-between align-items-center">
+                                                 <label class="form-check-label fw-bold" for="enableAssembly">لاصق وتقفيل</label>
+                                                 <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableAssembly"></div>
+                                             </div>
+                                             <div id="assembly-options" class="mt-2 form-section pt-2 border-top">
+                                                 <label for="assemblyType" class="form-label">نوع اللاصق والتقفيل</label>
+                                                 <select id="assemblyType" class="form-select">
+                                                     <option value="none" selected>بدون</option>
+                                                     <option value="single_point">لاصق بنطة واحدة</option>
+                                                     <option value="double_point">لاصق 2 بنطة</option>
+                                                     <option value="triple_point">لاصق 3 بنطة</option>
+                                                     <option value="bag_handle">لاصق ويد للشنطة</option>
+                                                 </select>
+                                             </div>
+                                         </div>
+                                     </div>
+                                </div>
+                                <div class="section-subheader">التجليد والتجميع (للكتب)</div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="finish-option" id="collating-section">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <label class="form-check-label fw-bold" for="enableCollating">تجميع الملازم</label>
+                                                <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableCollating" checked></div>
+                                            </div>
+                                        </div>
+                                        <div class="finish-option" id="binding-section">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <label class="form-check-label fw-bold" for="enableBinding">تجليد</label>
+                                                <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableBinding" checked></div>
+                                            </div>
+                                            <div id="binding-options" class="mt-2 form-section active pt-2 border-top">
+                                                <label for="bindingType" class="form-label">نوع التجليد</label>
+                                                <select id="bindingType" class="form-select"><option value="perfect" selected>بشر (Perfect)</option><option value="hardcover">هارد كفر</option><option value="none">بدون</option></select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="finish-option" id="sewing-section">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <label class="form-check-label fw-bold" for="enableSewing">خياطة الملازم</label>
+                                                <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableSewing"></div>
+                                            </div>
+                                        </div>
+                                        <div class="finish-option" id="slitting-section">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <label class="form-check-label fw-bold" for="enableSlitting">التشريح</label>
+                                                <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableSlitting"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Wizard Footer -->
+                            <div class="wizard-footer">
+                                <button type="button" class="btn btn-secondary" id="prevBtn" style="display: none;">السابق</button>
+                                <button type="button" class="btn btn-primary" id="nextBtn">التالي</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- Right Column: Results -->
+            <div class="col-lg-4">
+                <div id="results-card" class="card">
+                    <div class="card-header">ملخص التكلفة</div>
+                    <div class="card-body">
+                        <div id="results-breakdown" style="max-height: 68vh; overflow-y: auto; padding: 0 0.5rem;">
+                            <p class="text-muted text-center p-5">الرجاء إدخال البيانات لحساب التكلفة.</p>
+                        </div>
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between align-items-center px-2">
+                            <h6 class="mb-0">إجمالي التكلفة (بدون ربح):</h6>
+                            <div id="sub-total-price" class="fw-bold">0.00 جنيه</div>
+                        </div>
+                        <div class="px-2 my-2">
+                            <label for="profitPercentage" class="form-label mb-1 small">أضف نسبة الأرباح</label>
+                            <div class="input-group">
+                                <input type="number" id="profitPercentage" class="form-control" value="25" min="0">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center px-2 text-success">
+                            <h6 class="mb-0">قيمة الربح:</h6>
+                            <div id="profit-value" class="fw-bold">+0.00 جنيه</div>
+                        </div>
+                        <hr class="mt-2">
+                        <div class="d-flex justify-content-between align-items-center px-2">
+                            <h5 class="mb-0">الإجمالي النهائي (بالربح):</h5>
+                            <div id="total-price">0.00 جنيه</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Script Section -->
+    <script>
+    // --- Waste Rule Function (قاعدة الألف + 50) ---
+    function applyWasteRule(sheetsCount) {
+        if (sheetsCount <= 0) return { paperSheets: 0, printSheets: 0, message: "" };
+
+        const baseThousand = Math.floor(sheetsCount / 1000) * 1000; 
+        const remainder = sheetsCount - baseThousand;
+
+        // لو الكمية أقل من 1000
+        if (sheetsCount < 1000) {
+            return {
+                paperSheets: 1000, // الورق على 1000
+                printSheets: 1000, // الطباعة على 1000
+                message: "⚠️ الكمية أقل من 1000 → تم تقريبها إلى 1000 شيت."
+            };
+        }
+
+        // لو الزيادة ≤ 50 → الورق يحسب بالزيادة، الطباعة على الألفية الأساسية
+        if (remainder > 0 && remainder <= 50) {
+            return {
+                paperSheets: baseThousand + remainder, // الورق = الكمية الأصلية
+                printSheets: baseThousand,             // الطباعة على الألفية الأساسية
+                message: `✔️ تم احتساب ${remainder} شيت كهالك (ورق = ${baseThousand + remainder}, طباعة = ${baseThousand}).`
+            };
+        }
+
+        // لو الزيادة > 50 → تقفيل على الألفية التالية
+        const nextThousand = (Math.ceil(sheetsCount / 1000)) * 1000;
+        return {
+            paperSheets: nextThousand,
+            printSheets: nextThousand,
+            message: `⚠️ تم تجاوز حد الهالك (50). تم التقريب إلى ${nextThousand} شيت.`
+        };
+    }
+
+    // --- START: LAYOUT CALCULATOR CODE ---
+    const GRIPPER_MARGIN = 1; // Standard gripper margin is now 1 cm for all sizes.
+    const layoutSheets = {
+        "tegary": { name: "تجاري", width: 30, height: 20, key: "eighth" },
+        "a4": { name: "A4", width: 29.7, height: 21, key: "eighth" },
+        "tesaat": { name: "تسعات", width: 33.3, height: 23.3, key: "eighth" },
+        "thomn": { name: "ثمن", width: 35, height: 25, key: "eighth" },
+        "a3": { name: "A3", width: 42, height: 29.7, key: "quarter" },
+        "roba": { name: "ربع", width: 50, height: 35, key: "quarter" },
+        "noss": { name: "نص", width: 70, height: 50, key: "half" },
+        "kamel": { name: "كامل", width: 100, height: 70, key: "full" },
+        "gaier_eighth": { name: "جاير ثمن", width: 33, height: 22, key: "eighth", family: "gaier" },
+        "gaier_quarter": { name: "جاير ربع", width: 44, height: 33, key: "quarter", family: "gaier" },
+        "gaier_half": { name: "جاير نص", width: 66, height: 44, key: "half", family: "gaier" },
+        "gaier_full": { name: "جاير كامل", width: 88, height: 66, key: "full", family: "gaier" },
+    };
+    const mainSheet = { width: 100, height: 70, area: 100 * 70 };
+    let coverLayoutResult = null;
+    let internalLayoutResult = null;
+    let isProgrammaticChange = false; // Flag to prevent event loops
+
+    function getBestGridInArea(areaW, areaH, itemW, itemH) {
+        if (areaW <= 0 || areaH <= 0) return { count: 0 };
+        const normalCount = (itemW > areaW || itemH > areaH) ? 0 : Math.floor(areaW / itemW) * Math.floor(areaH / itemH);
+        const rotatedCount = (itemH > areaW || itemW > areaH) ? 0 : Math.floor(areaW / itemH) * Math.floor(areaH / itemW);
+        if (normalCount >= rotatedCount) {
+            return { count: normalCount, cols: Math.floor(areaW / itemW), rows: Math.floor(areaH / itemH), itemW: itemW, itemH: itemH, rotated: false };
+        } else {
+            return { count: rotatedCount, cols: Math.floor(areaW / itemH), rows: Math.floor(areaH / itemW), itemW: itemH, itemH: itemW, rotated: true };
+        }
+    }
+
+    function findBestCardArrangement(sheetW, sheetH, cardW, cardH) {
+        let best = { count: 0, strategy: null };
+        const singleGrid = getBestGridInArea(sheetW, sheetH, cardW, cardH);
+        if(singleGrid.count > best.count) {
+            best.count = singleGrid.count;
+            best.strategy = { type: 'single', layout: singleGrid };
+        }
+        for (let splitX = 1; splitX < sheetW; splitX++) {
+            const blockA = getBestGridInArea(splitX, sheetH, cardW, cardH);
+            const blockB = getBestGridInArea(sheetW - splitX, sheetH, cardW, cardH);
+            if (blockA.count + blockB.count > best.count) { best.count = blockA.count + blockB.count; best.strategy = { type: 'horizontal-split', splitX, layoutA: blockA, layoutB: blockB }; }
+        }
+        for (let splitY = 1; splitY < sheetH; splitY++) {
+            const blockA = getBestGridInArea(sheetW, splitY, cardW, cardH);
+            const blockB = getBestGridInArea(sheetW, sheetH - splitY, cardW, cardH);
+            if (blockA.count + blockB.count > best.count) { best.count = blockA.count + blockB.count; best.strategy = { type: 'vertical-split', splitY, layoutA: blockA, layoutB: blockB }; }
+        }
+        const positions = [];
+        let usedWidth = 0;
+        let usedHeight = 0;
+        let itemsOnWidthEdge = 0;
+        let itemsOnHeightEdge = 0;
+        if (!best.strategy) return { positions, usedWidth, usedHeight, itemsOnWidthEdge, itemsOnHeightEdge };
+        const { type } = best.strategy;
+        if (type === 'single') {
+            const { layout } = best.strategy;
+            for (let r = 0; r < layout.rows; r++) for (let c = 0; c < layout.cols; c++) positions.push({ x: c * layout.itemW, y: r * layout.itemH, w: layout.itemW, h: layout.itemH, rotated: layout.rotated });
+            if (layout.cols > 0 && layout.rows > 0) {
+                 usedWidth = layout.cols * layout.itemW;
+                 usedHeight = layout.rows * layout.itemH;
+                 itemsOnWidthEdge = layout.cols;
+                 itemsOnHeightEdge = layout.rows;
+            }
+        } else if (type === 'horizontal-split') {
+            const { splitX, layoutA, layoutB } = best.strategy;
+            for (let r = 0; r < layoutA.rows; r++) for (let c = 0; c < layoutA.cols; c++) positions.push({ x: c * layoutA.itemW, y: r * layoutA.itemH, w: layoutA.itemW, h: layoutA.itemH, rotated: layoutA.rotated });
+            for (let r = 0; r < layoutB.rows; r++) for (let c = 0; c < layoutB.cols; c++) positions.push({ x: splitX + (c * layoutB.itemW), y: r * layoutB.itemH, w: layoutB.itemW, h: layoutB.itemH, rotated: layoutB.rotated });
+        } else if (type === 'vertical-split') {
+            const { splitY, layoutA, layoutB } = best.strategy;
+            for (let r = 0; r < layoutA.rows; r++) for (let c = 0; c < layoutA.cols; c++) positions.push({ x: c * layoutA.itemW, y: r * layoutA.itemH, w: layoutA.itemW, h: layoutA.itemH, rotated: layoutA.rotated });
+            for (let r = 0; r < layoutB.rows; r++) for (let c = 0; c < layoutB.cols; c++) positions.push({ x: c * layoutB.itemW, y: splitY + (r * layoutB.itemH), w: layoutB.itemW, h: layoutB.itemH, rotated: layoutB.rotated });
+        }
+        if (type !== 'single') { // Fallback for complex layouts to calculate used space
+             usedWidth = positions.reduce((max, p) => Math.max(max, p.x + p.w), 0);
+             usedHeight = positions.reduce((max, p) => Math.max(max, p.y + p.h), 0);
+             // Note: itemsOnEdge calculation is simplified here for complex layouts
+             if(cardW > 0) itemsOnWidthEdge = Math.floor(usedWidth / cardW);
+             if(cardH > 0) itemsOnHeightEdge = Math.floor(usedHeight/ cardH);
+        }
+        return { positions, usedWidth, usedHeight, itemsOnWidthEdge, itemsOnHeightEdge };
+    }
+
+    function getFarkhLayout(chosenSheet) {
+        const isGaier = chosenSheet && chosenSheet.family === 'gaier';
+        const baseW = isGaier ? 88 : mainSheet.width;
+        const baseH = isGaier ? 66 : mainSheet.height;
+        const arrangement = findBestCardArrangement(baseW, baseH, chosenSheet.width, chosenSheet.height);
+        return { positions: arrangement.positions, width: baseW, height: baseH, units: arrangement.positions.length };
+    }
+
+    function createVisual(layoutData, title, itemType = 'card', customTitleContent = null, isPressSheet = false) {
+        const { positions, width, height, gripperOrientation, gripperFits } = layoutData;
+        const container = document.createElement('div'); container.className = 'sheet-visual-wrapper';
+        const titleElement = document.createElement('div'); titleElement.className = 'visual-title';
+        titleElement.innerHTML = title;
+        if (customTitleContent) {
+            titleElement.innerHTML += ` (${customTitleContent})`;
+        }
+        const visual = document.createElement('div'); visual.className = 'sheet-visual';
+        const scale = Math.min(280 / width, 320 / height);
+        visual.style.width = `${width * scale}px`; visual.style.height = `${height * scale}px`;
+        const wastedLayer = document.createElement('div'); wastedLayer.className = 'wasted-area';
+        wastedLayer.style.width = '100%'; wastedLayer.style.height = '100%';
+        visual.appendChild(wastedLayer);
+        let noteText = '';
+        if (isPressSheet && GRIPPER_MARGIN > 0 && gripperFits) {
+            const gripperDiv = document.createElement('div');
+            gripperDiv.className = 'gripper-margin';
+            const gripperText = document.createElement('span');
+            gripperText.className = 'gripper-text';
+            gripperText.textContent = `البنسة (${GRIPPER_MARGIN} سم)`;
+            if (gripperOrientation === 'vertical') { 
+                gripperDiv.style.width = `${GRIPPER_MARGIN * scale}px`;
+                gripperDiv.style.height = '100%';
+                gripperDiv.style.left = '0';
+                gripperDiv.style.top = '0';
+                gripperText.classList.add('vertical');
+                noteText = `ملحوظة: تم ترك هامش بنسة بعرض ${GRIPPER_MARGIN} سم على جانب الشيت.`;
+            } else { 
+                gripperDiv.style.width = '100%';
+                gripperDiv.style.height = `${GRIPPER_MARGIN * scale}px`;
+                gripperDiv.style.left = '0';
+                gripperDiv.style.top = '0';
+                noteText = `ملحوظة: تم ترك هامش بنسة بعرض ${GRIPPER_MARGIN} سم أعلى الشيت.`;
+            }
+            gripperDiv.appendChild(gripperText);
+            visual.appendChild(gripperDiv);
+        }
+        positions.forEach(pos => {
+          const itemDiv = document.createElement('div'); itemDiv.className = 'item-on-sheet';
+          if (itemType === 'card') { itemDiv.classList.add('card', pos.rotated ? 'rotated' : 'normal'); }
+          else { itemDiv.classList.add('sheet-on-farkh', pos.rotated ? 'rotated' : 'normal'); }
+          itemDiv.style.width = `${pos.w * scale}px`; itemDiv.style.height = `${pos.h * scale}px`;
+          let leftOffset = pos.x;
+          let topOffset = pos.y;
+          if(isPressSheet && gripperFits) {
+              if (gripperOrientation === 'vertical') {
+                  leftOffset += GRIPPER_MARGIN;
+              } else {
+                  topOffset += GRIPPER_MARGIN;
+              }
+          }
+          itemDiv.style.left = `${leftOffset * scale}px`;
+          itemDiv.style.top = `${topOffset * scale}px`;
+          visual.appendChild(itemDiv);
+        });
+        container.appendChild(visual);
+        container.appendChild(titleElement);
+        if (noteText) {
+            const noteElement = document.createElement('div');
+            noteElement.className = 'visual-note';
+            noteElement.textContent = noteText;
+            container.appendChild(noteElement);
+        }
+        return container;
+    }
+
+    function displayLayoutVisuals(layoutResult, totalPressSheets, totalFullSheets, outputElId, visualsContainerId, itemType, isCover = false, itemLabel = 'القطع') {
+        const outputEl = document.getElementById(outputElId);
+        const visualsContainer = document.getElementById(visualsContainerId);
+        outputEl.innerHTML = '';
+        visualsContainer.innerHTML = '';
+        if (!layoutResult || layoutResult.unitsPerSheet === 0) {
+            outputEl.innerHTML = `<div class="warning">⚠️ لا يمكن وضع المنتج في الشيت المحدد.</div>`;
+            return;
+        }
+        const { unitsPerSheet, sheetArea, displayName, width, height, itemW, itemH, key, gripperOrientation, gripperFits, shortfall, itemsOnEdge, usedWidth, usedHeight, itemsOnWidthEdge, itemsOnHeightEdge } = layoutResult;
+        const usedArea = unitsPerSheet * itemW * itemH;
+        // Efficiency is now calculated on the full sheet area, as the gripper is a layout constraint, not a reduction of the paper itself.
+        const efficiencyPercent = usedArea > 0 ? (usedArea / (width * height) * 100) : 0;
+const FULL_SHEET_HIDE_PCT = 96;
+const allowAdvisor = efficiencyPercent < FULL_SHEET_HIDE_PCT;
+        const finalItemLabel = isCover ? itemLabel : 'القطع الداخلية';
+        let gripperWarningHTML = '';
+        if (!gripperFits) {
+            const shortfallMm = (shortfall * 10).toFixed(1);
+            let suggestion = '';
+            if (itemsOnEdge > 0) {
+                    const reductionPerItemMm = (shortfall / itemsOnEdge * 10).toFixed(1);
+                    const productTypeGr = (document.getElementById('productType') && document.getElementById('productType').value) || '';
+                    const dimensionLabel = (productTypeGr === 'box_bag') ? 'الارتفاع' : (gripperOrientation === 'vertical' ? 'العرض' : 'الطول');
+                    suggestion = ` جرب تقليل ${dimensionLabel} لكل قطعة بمقدار ${reductionPerItemMm} مم.`;
+                }
+            gripperWarningHTML = `<div class="gripper-warning">
+                ⚠️ تنبيه: المساحة لا تكفي للبنسة! ينقصك <strong>${shortfallMm} مم</strong> في اتجاه الطباعة.${suggestion}
+            </div>`;
+        }
+
+        // مستشار ذكي: اداة ذكية للحسابات - يوجه المستخدم لتقليل أو زيادة الأبعاد لكل قطعة
+        let smartAdvisorHTML = '';
+        // مستشار ذكي (لكل قطعة): اقتراح إضافة صف/عمود بإنقاص بسيط موزّع على كافة القطع على الحافة
+        if (!smartAdvisorHTML && gripperFits && allowAdvisor) {
+            const productTypeNow = (document.getElementById('productType') && document.getElementById('productType').value) || '';
+            const capW = Math.max(0, itemW * 0.2);
+            const capH = Math.max(0, itemH * 0.2);
+            const extraNeededW = (() => {
+                const marginW = (gripperOrientation === 'vertical') ? GRIPPER_MARGIN : 0;
+                return Math.max(0, (usedWidth + itemW + marginW) - width);
+            })();
+            const extraNeededH = (() => {
+                const marginH = (gripperOrientation === 'horizontal') ? GRIPPER_MARGIN : 0;
+                return Math.max(0, (usedHeight + itemH + marginH) - height);
+            })();
+            const suggestions = [];
+            if (itemsOnWidthEdge > 0 && extraNeededW > 0 && isFinite(extraNeededW)) {
+                const targetCols = itemsOnWidthEdge + 1;
+                const perItemDropW = extraNeededW / targetCols;
+                if (perItemDropW <= capW && perItemDropW > 0) {
+                    suggestions.push({ axis: 'W', perItem: perItemDropW, addUnits: Math.max(1, itemsOnHeightEdge), label: 'العرض' });
+                }
+            }
+            if (itemsOnHeightEdge > 0 && extraNeededH > 0 && isFinite(extraNeededH)) {
+                const targetRows = itemsOnHeightEdge + 1;
+                const perItemDropH = extraNeededH / targetRows;
+                if (perItemDropH <= capH && perItemDropH > 0) {
+                    suggestions.push({ axis: 'H', perItem: perItemDropH, addUnits: Math.max(1, itemsOnWidthEdge), label: 'الطول' });
+                }
+            }
+            if (suggestions.length) {
+                // محاكاة شاملة: جرّب تقليل 1 مم تدريجيًا حتى حد 20% للعثور على أقل تقليل يزيد الوحدات فعليًا (قد يقفز إلى 4 بدل 3)
+                const simSuggestions = [];
+                const tryAxis = (axis) => {
+                    const cap = axis === 'W' ? capW : capH;
+                    if (!(cap > 0)) return;
+                    for (let drop = 0.1; drop <= cap + 1e-9; drop += 0.1) { // خطوة 1 مم
+                        const trialW = axis === 'W' ? Math.max(0.1, itemW - drop) : itemW;
+                        const trialH = axis === 'H' ? Math.max(0.1, itemH - drop) : itemH;
+                        const arr = findBestCardArrangement(width, height, trialW, trialH);
+                         const units = (arr && arr.positions) ? arr.positions.length : 0;
+                         if (units > unitsPerSheet && arr) {
+                             // تحقق شرط البنسة في نفس اتجاه الشيت الحالي
+                             const wastedSpace = (gripperOrientation === 'vertical')
+                                 ? (width - arr.usedWidth)
+                                 : (height - arr.usedHeight);
+                             const fitsGripper = wastedSpace >= GRIPPER_MARGIN - 1e-6;
+                             if (fitsGripper) {
+                                 simSuggestions.push({ axis, perItem: drop, newUnits: units, label: axis === 'W' ? 'العرض' : 'الطول' });
+                                 break; // أخذ أقل تقليل محقق لزيادة الوحدات مع البنسة
+                             }
+                         }
+                    }
+                };
+                tryAxis('W');
+                tryAxis('H');
+
+                // اختر أفضل اقتراح: الأقل تقليلًا، وعند التساوي اختر الأعلى وحدات
+                let best;
+                if (simSuggestions.length) {
+                    simSuggestions.sort((a, b) => (a.perItem - b.perItem) || (b.newUnits - a.newUnits));
+                    best = simSuggestions[0];
+                } else {
+                    suggestions.sort((a, b) => a.perItem - b.perItem);
+                    best = suggestions[0];
+                    best.newUnits = best.axis === 'W'
+                        ? (itemsOnWidthEdge + 1) * Math.max(1, itemsOnHeightEdge)
+                        : (itemsOnHeightEdge + 1) * Math.max(1, itemsOnWidthEdge);
+                }
+
+                const perItemMm = best.perItem * 10;
+                const deltaTxt = perItemMm >= 10
+                    ? `${(+best.perItem.toFixed(1)).toString().replace(/\.0$/, '')} سم`
+                    : `${Math.max(1, Math.round(perItemMm))} مم`;
+                let dimLabel = best.label;
+                if (productTypeNow === 'box_bag') {
+                    dimLabel = best.axis === 'W' ? 'العرض (مثال: عرض القاعدة/الفلاب)' : 'الطول (مثال: طول القاعدة/الفلاب)';
+                }
+                smartAdvisorHTML = `<div class=\"alert alert-warning small mt-2\">💡 مستشار ذكي: لو قلِّلت ${dimLabel} لكل قطعة بمقدار ${deltaTxt} — نقدر نزود صف/عمود ونرفع العدد من ${unitsPerSheet} إلى ${best.newUnits} في الشيت لتقليل التكلفة.</div>`;
+            }
+        }
+        {
+            // ينطبق على حالة شائعة: 48×18 أو 48×19 (أو بالعكس) على شيت ربع (50×35)
+            const isQuarterSheet = (Math.abs(width - 50) < 0.6 && Math.abs(height - 35) < 0.6) || (Math.abs(width - 35) < 0.6 && Math.abs(height - 50) < 0.6);
+            const isA3Sheet = (Math.abs(width - 42) < 0.6 && Math.abs(height - 29.7) < 0.6) || (Math.abs(width - 29.7) < 0.6 && Math.abs(height - 42) < 0.6);
+            const near = (v, t) => Math.abs(v - t) <= 1;
+            const looksPattern = (near(itemW, 48) && (near(itemH, 18) || near(itemH, 19))) || (near(itemH, 48) && (near(itemW, 18) || near(itemW, 19)));
+            if (isQuarterSheet && looksPattern && unitsPerSheet < 2) {
+                // حدد البعد الأقرب لـ 18/19 لتقليله إلى 17
+                const reduceWidth = near(itemW, 18) || near(itemW, 19);
+                const reduceHeight = near(itemH, 18) || near(itemH, 19);
+
+                // صلاحية الاستيعاب بعد التقليص: جهّز شكل المقاس الجديد حسب محور التقليل
+                const minSheet = Math.min(width, height);
+                const maxSheet = Math.max(width, height);
+                const fitsByReducingH = reduceHeight && (2 * 17 <= minSheet) && (itemW <= maxSheet);
+                const fitsByReducingW = reduceWidth && (2 * 17 <= minSheet) && (itemH <= maxSheet);
+
+                if (fitsByReducingH || fitsByReducingW) {
+                    const productType = (document.getElementById('productType') && document.getElementById('productType').value) || '';
+                    let contextLabel = 'المنتج';
+                    if (isCover) {
+                        if (productType === 'book' || productType === 'notebook') contextLabel = 'الغلاف';
+                        else if (productType === 'card') contextLabel = 'الكارت أو البرشور';
+                        else if (productType === 'box_bag') contextLabel = 'العلبة أو الشنطة';
+                    } else {
+                        if (productType === 'book') contextLabel = 'الكتاب';
+                        else if (productType === 'notebook') contextLabel = 'النوت بوك';
+                        else if (productType === 'card') contextLabel = 'الكارت أو البرشور';
+                        else if (productType === 'box_bag') contextLabel = 'العلبة أو الشنطة';
+                    }
+
+                    const dimLabel = fitsByReducingH ? 'الطول' : 'العرض';
+                    const oldW = itemW.toFixed(0);
+                    const oldH = itemH.toFixed(0);
+                    let newW = oldW, newH = oldH;
+                    if (fitsByReducingH) newH = '17';
+                    else newW = '17';
+
+                    // عرض المقاس بشكل مختصر H×W كما في طلبك
+                    const oldSizeHW = `${oldH}×${oldW}`;
+                    const newSizeHW = `${newH}×${newW}`;
+
+                    if (productType === 'box_bag') {
+                        // لمنتج العلبة/الشنطة: بدلاً من عرض أبعاد الشيت، قدّم اقتراحًا محايدًا مع أمثلة على أبعاد العلبة
+                        const cwEl = document.getElementById('coverWidth');
+                        const chEl = document.getElementById('coverHeight');
+                        const cdEl = document.getElementById('coverDepth');
+                        const baseWVal = parseFloat(cwEl && cwEl.value) || 0;   // عرض القاعدة
+                        const baseLVal = parseFloat(chEl && chEl.value) || 0;  // طول القاعدة
+                        const depthVal = parseFloat(cdEl && cdEl.value) || 0;  // الارتفاع
+                        const rawDeltaBox = Math.max(1, (dimLabel === 'الطول' ? Math.round(itemH) : Math.round(itemW)) - 17);
+                         const limitRef = (dimLabel === 'الطول' ? Math.round(itemH) : Math.round(itemW));
+                         const maxAllowedBox = Math.max(1, Math.floor(limitRef * 0.2));
+                         const deltaBox = Math.min(rawDeltaBox, maxAllowedBox);
+                         const examples = [];
+                        if (dimLabel === 'الطول') {
+                            if (baseLVal > 0 && (baseLVal - deltaBox) > 0) examples.push(`طول القاعدة من ${Math.round(baseLVal)} إلى ${Math.round(baseLVal - deltaBox)} سم`);
+                            if (depthVal > 0 && (depthVal - deltaBox) > 0) examples.push(`الارتفاع من ${Math.round(depthVal)} إلى ${Math.round(depthVal - deltaBox)} سم`);
+                        } else {
+                            if (baseWVal > 0 && (baseWVal - deltaBox) > 0) examples.push(`عرض القاعدة من ${Math.round(baseWVal)} إلى ${Math.round(baseWVal - deltaBox)} سم`);
+                            if (depthVal > 0 && (depthVal - deltaBox) > 0) examples.push(`الارتفاع من ${Math.round(depthVal)} إلى ${Math.round(depthVal - deltaBox)} سم`);
+                        }
+                        const examplesText = examples.length ? ` (مثال: ${examples.join(' أو ')})` : '';
+                        smartAdvisorHTML = `<div class=\"alert alert-warning small mt-2\">💡 مستشار ذكي: لو قللت أحد أبعاد العلبة المناسبة بمقدار ${deltaBox} سم${examplesText} — ممكن تطبع قطعتين في الشيت بدل واحدة — وتوفّر في الورق والتكلفة.</div>`;
+                    } else {
+                        smartAdvisorHTML = `<div class=\"alert alert-warning small mt-2\">💡 مستشار ذكي: لو قللت ${dimLabel} ${contextLabel} على الشيت ${newSizeHW} بدل ${oldSizeHW} — ممكن تطبع قطعتين في الشيت بدل واحدة — وتوفّر في الورق والتكلفة.</div>`;
+                    }
+                }
+            }
+
+            // فرع خاص بقسم العلبة/الشنطة: حالة 40×15 على ربع فرخ، تقليل 15 → 14 لتمكين قطعتين
+            {
+                const productTypeEl = document.getElementById('productType');
+                const productType2 = (productTypeEl && productTypeEl.value) || '';
+                if (productType2 === 'box_bag' && (isQuarterSheet || isA3Sheet) && unitsPerSheet < 2) {
+                    const looksBoxPattern = (near(itemW, 40) && near(itemH, 15)) || (near(itemH, 40) && near(itemW, 15));
+                    if (looksBoxPattern) {
+                        const reduceHeightBox = near(itemH, 15);
+                        const reduceWidthBox = near(itemW, 15);
+                        const minSheet2 = Math.min(width, height);
+                        const maxSheet2 = Math.max(width, height);
+                        const fitsByReducingHBox = reduceHeightBox && (2 * 14 <= minSheet2) && (itemW <= maxSheet2);
+                        const fitsByReducingWBox = reduceWidthBox && (2 * 14 <= minSheet2) && (itemH <= maxSheet2);
+                        if (fitsByReducingHBox || fitsByReducingWBox) {
+                            // استخدم أبعاد العلبة نفسها: عرض القاعدة/طول القاعدة/الارتفاع
+                            const cwEl = document.getElementById('coverWidth');
+                            const chEl = document.getElementById('coverHeight');
+                            const cdEl = document.getElementById('coverDepth');
+                            const baseWVal = parseFloat(cwEl && cwEl.value) || 0;   // عرض القاعدة
+                            const baseLVal = parseFloat(chEl && chEl.value) || 0;  // طول القاعدة
+                            const depthVal = parseFloat(cdEl && cdEl.value) || 0;  // الارتفاع
+                            const deltaBox = 1; // 15 → 14
+                            let dimTextBox = '';
+                            let oldValBox = 0;
+                            let newValBox = 0;
+                            if (fitsByReducingHBox) {
+                                // تقليل H: نُفضل تقليل طول القاعدة
+                                dimTextBox = 'طول القاعدة';
+                                oldValBox = baseLVal;
+                                newValBox = baseLVal - deltaBox;
+                                // بديل منطقي: الارتفاع
+                                if ((newValBox <= 0 || !isFinite(newValBox)) && (depthVal - deltaBox > 0)) {
+                                    dimTextBox = 'الارتفاع';
+                                    oldValBox = depthVal;
+                                    newValBox = depthVal - deltaBox;
+                                }
+                            } else {
+                                // تقليل W: نُفضل تقليل عرض القاعدة
+                                dimTextBox = 'عرض القاعدة';
+                                oldValBox = baseWVal;
+                                newValBox = baseWVal - deltaBox;
+                                if ((newValBox <= 0 || !isFinite(newValBox)) && (depthVal - deltaBox > 0)) {
+                                    dimTextBox = 'الارتفاع';
+                                    oldValBox = depthVal;
+                                    newValBox = depthVal - deltaBox;
+                                }
+                            }
+                            // صياغة حيادية: لا نحدد الطول/العرض/الارتفاع، بل نذكر أمثلة ممكنة
+                            const examples = [];
+                            if (fitsByReducingHBox) {
+                                if (baseLVal > 0 && (baseLVal - deltaBox) > 0) examples.push(`طول القاعدة من ${Math.round(baseLVal)} إلى ${Math.round(baseLVal - deltaBox)} سم`);
+                                if (depthVal > 0 && (depthVal - deltaBox) > 0) examples.push(`الارتفاع من ${Math.round(depthVal)} إلى ${Math.round(depthVal - deltaBox)} سم`);
+                            } else {
+                                if (baseWVal > 0 && (baseWVal - deltaBox) > 0) examples.push(`عرض القاعدة من ${Math.round(baseWVal)} إلى ${Math.round(baseWVal - deltaBox)} سم`);
+                                if (depthVal > 0 && (depthVal - deltaBox) > 0) examples.push(`الارتفاع من ${Math.round(depthVal)} إلى ${Math.round(depthVal - deltaBox)} سم`);
+                            }
+                            const examplesText = examples.length ? ` (مثال: ${examples.join(' أو ')})` : '';
+                            smartAdvisorHTML = `<div class=\"alert alert-warning small mt-2\">💡 مستشار ذكي: لو قللت أحد أبعاد العلبة المناسبة بمقدار ${deltaBox} سم${examplesText} — ممكن تطبع قطعتين في الشيت بدل واحدة — وتوفّر في الورق والتكلفة.</div>`;
+                        }
+                    }
+                }
+            }
+
+            // مستشار ذكي عام لكافة الأقسام وكافة مقاسات الشيت: اقترح تقليل بعد واحد لتمكين قطعتين
+            if (allowAdvisor && !smartAdvisorHTML && unitsPerSheet < 2) {
+                const minSheet = Math.min(width, height);
+                const maxSheet = Math.max(width, height);
+
+                // حساب المرشحين لتقليل بُعد واحد أو بُعدين (مركّب) لتمكين قطعتين
+                const candidates = [];
+
+                // ترتيب A: W→maxSheet, H→minSheet | قطعتان على المحور الصغير
+                if (itemW <= maxSheet) {
+                    const targetH = Math.floor(minSheet / 2);
+                    if (targetH > 0 && targetH < itemH) {
+                        candidates.push({ dim: 'H', newW: itemW, newH: targetH, delta: itemH - targetH, mode: 'A1', type: 'single' });
+                    }
+                }
+                // ترتيب A: قطعتان على المحور الكبير
+                if (itemH <= minSheet) {
+                    const targetW = Math.floor(maxSheet / 2);
+                    if (targetW > 0 && targetW < itemW) {
+                        candidates.push({ dim: 'W', newW: targetW, newH: itemH, delta: itemW - targetW, mode: 'A2', type: 'single' });
+                    }
+                }
+
+                // ترتيب B (تدوير القطعة): W→minSheet, H→maxSheet | قطعتان على المحور الصغير
+                if (itemH <= maxSheet) {
+                    const targetW2 = Math.floor(minSheet / 2);
+                    if (targetW2 > 0 && targetW2 < itemW) {
+                        candidates.push({ dim: 'W', newW: targetW2, newH: itemH, delta: itemW - targetW2, mode: 'B1', type: 'single' });
+                    }
+                }
+                // ترتيب B: قطعتان على المحور الكبير
+                if (itemW <= minSheet) {
+                    const targetH2 = Math.floor(maxSheet / 2);
+                    if (targetH2 > 0 && targetH2 < itemH) {
+                        candidates.push({ dim: 'H', newW: itemW, newH: targetH2, delta: itemH - targetH2, mode: 'B2', type: 'single' });
+                    }
+                }
+
+                // حلول مركّبة: تقليل بسيط في البُعدين معاً إذا كان أوفر
+                // هدف: تحقيق 2×1 أو 1×2 بتقليل متوازن
+                const tryCompound = (targetW, targetH, mode) => {
+                    if (targetW > 0 && targetH > 0 && targetW < itemW && targetH < itemH) {
+                        const deltaW = itemW - targetW;
+                        const deltaH = itemH - targetH;
+                        const totalDelta = deltaW + deltaH;
+                        // التأكد من أن الحل يمكّن فعلاً من قطعتين
+                        const arrangement = findBestCardArrangement(width, height, targetW, targetH);
+                        if (arrangement && arrangement.positions && arrangement.positions.length >= 2) {
+                            candidates.push({ 
+                                dim: 'both', 
+                                newW: targetW, 
+                                newH: targetH, 
+                                delta: totalDelta, 
+                                deltaW, 
+                                deltaH, 
+                                mode, 
+                                type: 'compound' 
+                            });
+                        }
+                    }
+                };
+
+                // مركّبة A: استهداف 2×1 - تقليل W ليصل maxSheet/2، تقليل H ليصل minSheet
+                tryCompound(Math.floor(maxSheet / 2), minSheet - 1, 'compound-A');
+                
+                // مركّبة B: استهداف 1×2 - تقليل W ليصل maxSheet، تقليل H ليصل minSheet/2
+                tryCompound(maxSheet - 1, Math.floor(minSheet / 2), 'compound-B');
+
+                if (candidates.length) {
+                    // اختيار أقل تقليل ممكن
+                    candidates.sort((a, b) => a.delta - b.delta);
+                    const best = candidates[0];
+
+                    const productType = (document.getElementById('productType') && document.getElementById('productType').value) || '';
+                    let contextLabel = 'المنتج';
+                    if (isCover) {
+                        if (productType === 'book' || productType === 'notebook') contextLabel = 'الغلاف';
+                        else if (productType === 'card') contextLabel = 'الكارت أو البرشور';
+                        else if (productType === 'box_bag') contextLabel = 'العلبة أو الشنطة';
+                    } else {
+                        if (productType === 'book') contextLabel = 'الكتاب';
+                        else if (productType === 'notebook') contextLabel = 'النوت بوك';
+                        else if (productType === 'card') contextLabel = 'الكارت أو البرشور';
+                        else if (productType === 'box_bag') contextLabel = 'العلبة أو الشنطة';
+                    }
+
+                    if (productType === 'box_bag') {
+                        if (best.type === 'compound') {
+                            const oldWNum = Math.round(itemW);
+                            const oldHNum = Math.round(itemH);
+                            const desiredNewW = Math.round(best.newW);
+                            const desiredNewH = Math.round(best.newH);
+                            const maxDropW = Math.floor(oldWNum * 0.2);
+                            const maxDropH = Math.floor(oldHNum * 0.2);
+                            const shownDropW = Math.min(Math.max(0, oldWNum - desiredNewW), maxDropW);
+                            const shownDropH = Math.min(Math.max(0, oldHNum - desiredNewH), maxDropH);
+                            const shownNewW = oldWNum - shownDropW;
+                            const shownNewH = oldHNum - shownDropH;
+                            smartAdvisorHTML = `<div class=\"alert alert-warning small mt-2\">💡 مستشار ذكي: حل مركّب — قلِّل العرض من ${oldWNum} إلى ${shownNewW} سم، وقلِّل الطول من ${oldHNum} إلى ${shownNewH} سم — قد يمكّنك من طباعة قطعتين ويوفّر في الورق والتكلفة.</div>`;
+                        } else {
+                            // صياغة حيادية لا تُحدد البعد: نعرض أمثلة صحيحة بناءً على البعد المطلوب تقليله في المسطح
+                            const baseWVal = parseFloat(document.getElementById('coverWidth')?.value) || 0;   // عرض القاعدة
+                            const baseLVal = parseFloat(document.getElementById('coverHeight')?.value) || 0;  // طول القاعدة
+                            const depthVal = parseFloat(document.getElementById('coverDepth')?.value) || 0;   // الارتفاع
+                            const oldWNum = Math.round(itemW);
+                            const oldHNum = Math.round(itemH);
+                            const newWNum = Math.round(best.newW);
+                            const newHNum = Math.round(best.newH);
+                            const deltaDim = (best.dim === 'H') ? (oldHNum - newHNum) : (oldWNum - newWNum);
+                            // تطبيق حد أقصى 20% من البعد الحالي
+                            const maxAllowed = best.dim === 'H' ? oldHNum * 0.2 : oldWNum * 0.2;
+                            const limitedDelta = Math.min(deltaDim, maxAllowed);
+                            const deltaTxt = Math.floor(limitedDelta).toString();
+                            const examples = [];
+                            if (best.dim === 'H') {
+                                if (baseLVal > 0 && (baseLVal - limitedDelta) > 0) examples.push(`طول القاعدة من ${Math.round(baseLVal)} إلى ${Math.round(baseLVal - limitedDelta)} سم`);
+                                if (depthVal > 0 && (depthVal - limitedDelta) > 0) examples.push(`الارتفاع من ${Math.round(depthVal)} إلى ${Math.round(depthVal - limitedDelta)} سم`);
+                            } else {
+                                if (baseWVal > 0 && (baseWVal - limitedDelta) > 0) examples.push(`عرض القاعدة من ${Math.round(baseWVal)} إلى ${Math.round(baseWVal - limitedDelta)} سم`);
+                                if (depthVal > 0 && (depthVal - limitedDelta) > 0) examples.push(`الارتفاع من ${Math.round(depthVal)} إلى ${Math.round(depthVal - limitedDelta)} سم`);
+                            }
+                            const examplesText = examples.length ? ` (مثال: ${examples.join(' أو ')})` : '';
+                            const capApplied = limitedDelta < deltaDim;
+                            smartAdvisorHTML = capApplied
+                                ? `<div class=\"alert alert-warning small mt-2\">💡 مستشار ذكي: لو قللت أحد أبعاد العلبة المناسبة بمقدار ${deltaTxt} سم${examplesText} — سيساعد في تحسين استغلال الشيت. لتمكين قطعتين قد تحتاج لتقليل أكبر.</div>`
+                                : `<div class=\"alert alert-warning small mt-2\">💡 مستشار ذكي: لو قللت أحد أبعاد العلبة المناسبة بمقدار ${deltaTxt} سم${examplesText} — ممكن تطبع قطعتين في الشيت بدل واحدة — وتوفّر في الورق والتكلفة.</div>`;
+                        }
+                    } else {
+                        if (best.type === 'compound') {
+                            const oldWNum = Math.round(itemW);
+                            const oldHNum = Math.round(itemH);
+                            const newWNum = Math.round(best.newW);
+                            const newHNum = Math.round(best.newH);
+                            const dropW = Math.max(0, oldWNum - newWNum);
+                            const dropH = Math.max(0, oldHNum - newHNum);
+                            const capW = Math.floor(oldWNum * 0.2);
+                            const capH = Math.floor(oldHNum * 0.2);
+                            if (dropW <= capW && dropH <= capH) {
+                                const oldSizeHW = `${oldHNum}×${oldWNum}`;
+                                const newSizeHW = `${newHNum}×${newWNum}`;
+                                smartAdvisorHTML = `<div class=\"alert alert-warning small mt-2\">💡 مستشار ذكي: حل مركّب — قلِّل العرض والطول معًا إلى ${newSizeHW} بدل ${oldSizeHW} — ممكن تطبع قطعتين في الشيت بدل واحدة — وتوفّر في الورق والتكلفة.</div>`;
+                            }
+                        } else {
+                            const dimLabelGeneric = best.dim === 'H' ? 'الطول' : 'العرض';
+                            const oldWNum = Math.round(itemW);
+                            const oldHNum = Math.round(itemH);
+                            const newWNum = Math.round(best.newW);
+                            const newHNum = Math.round(best.newH);
+                            const drop = best.dim === 'H' ? Math.max(0, oldHNum - newHNum) : Math.max(0, oldWNum - newWNum);
+                            const cap = Math.floor((best.dim === 'H' ? oldHNum : oldWNum) * 0.2);
+                            if (drop <= cap) {
+                                const oldSizeHW = `${oldHNum}×${oldWNum}`;
+                                const newSizeHW = `${newHNum}×${newWNum}`;
+                                smartAdvisorHTML = `<div class=\"alert alert-warning small mt-2\">💡 مستشار ذكي: لو قللت ${dimLabelGeneric} ${contextLabel} على الشيت ${newSizeHW} بدل ${oldSizeHW} — ممكن تطبع قطعتين في الشيت بدل واحدة — وتوفّر في الورق والتكلفة.</div>`;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // اقتراح زيادة مقاس لكل قطعة (موزّع على الحافة) عند وجود فراغ معتبر على الشيت (≥ 10%)
+        if (allowAdvisor && !smartAdvisorHTML) {
+            const productTypeNow = (document.getElementById('productType') && document.getElementById('productType').value) || '';
+            const uW = (typeof layoutResult.usedWidth === 'number' && layoutResult.usedWidth > 0) ? layoutResult.usedWidth : Math.min(itemW || 0, width || 0);
+            const uH = (typeof layoutResult.usedHeight === 'number' && layoutResult.usedHeight > 0) ? layoutResult.usedHeight : Math.min(itemH || 0, height || 0);
+            const slackW = Math.max(0, (width || 0) - (uW || 0));
+            const slackH = Math.max(0, (height || 0) - (uH || 0));
+            const slackPctW = (width > 0) ? (slackW / width) : 0;
+            const slackPctH = (height > 0) ? (slackH / height) : 0;
+            const SLACK_THRESHOLD = 0.10; // 10%
+            if (slackPctW >= SLACK_THRESHOLD || slackPctH >= SLACK_THRESHOLD) {
+                const formatDelta = (d) => d >= 1 ? `${d.toFixed(1).replace(/\.0$/, '')} سم` : `${Math.round(d * 10)} مم`;
+                if (productTypeNow === 'box_bag') {
+                    const baseW = parseFloat(document.getElementById('coverWidth')?.value) || 0;   // عرض القاعدة
+                    const baseL = parseFloat(document.getElementById('coverHeight')?.value) || 0;  // طول القاعدة
+                    const depth = parseFloat(document.getElementById('coverDepth')?.value) || 0;   // الارتفاع
+                    const perItemIncW = (itemsOnWidthEdge > 0) ? Math.max(0, (slackW - 0.5)) / itemsOnWidthEdge : 0; // هامش أمان 0.5 سم
+                    const perItemIncH = (itemsOnHeightEdge > 0) ? Math.max(0, (slackH - 0.5)) / itemsOnHeightEdge : 0;
+                    const perItemIncBoth = Math.max(0, Math.min(perItemIncW || 0, perItemIncH || 0));
+                    const incCandidates = [];
+                    if (baseW > 0) {
+                        const cap = Math.max(0, baseW * 0.2);
+                        const d = Math.min(perItemIncW, cap);
+                        if (d > 0 && isFinite(d)) incCandidates.push({ label: 'عرض القاعدة لكل قطعة', oldVal: baseW, delta: d });
+                    }
+                    if (baseL > 0) {
+                        const cap = Math.max(0, baseL * 0.2);
+                        const d = Math.min(perItemIncH, cap);
+                        if (d > 0 && isFinite(d)) incCandidates.push({ label: 'طول القاعدة لكل قطعة', oldVal: baseL, delta: d });
+                    }
+                    if (depth > 0) {
+                        const cap = Math.max(0, depth * 0.2);
+                        const d = Math.min(perItemIncBoth, cap);
+                        if (d > 0 && isFinite(d)) incCandidates.push({ label: 'الارتفاع لكل قطعة', oldVal: depth, delta: d });
+                    }
+                    if (incCandidates.length) {
+                        incCandidates.sort((a,b)=> b.delta - a.delta);
+                        const bestInc = incCandidates[0];
+                        const shownDelta = bestInc.delta >= 1 ? +bestInc.delta.toFixed(1) : bestInc.delta;
+                        const newVal = bestInc.oldVal + shownDelta;
+                        const deltaTxt = formatDelta(shownDelta);
+                        const oldTxt = `${(+bestInc.oldVal.toFixed(1)).toString().replace(/\.0$/, '')}`;
+                        const newTxt = `${(+newVal.toFixed(1)).toString().replace(/\.0$/, '')}`;
+                        smartAdvisorHTML = `<div class=\"alert alert-info small mt-2\">💡 مستشار ذكي: عندك فراغ على الشيت — زوِّد ${bestInc.label} بمقدار ${deltaTxt} (من ${oldTxt} إلى ${newTxt}) لتحسين استغلال الشيت.</div>`;
+                    }
+                } else {
+                    const perItemIncW = (itemsOnWidthEdge > 0) ? (slackW / itemsOnWidthEdge) : 0;
+                    const perItemIncH = (itemsOnHeightEdge > 0) ? (slackH / itemsOnHeightEdge) : 0;
+                    const axis = (perItemIncW >= perItemIncH) ? 'W' : 'H';
+                    const dimLabelInc = axis === 'W' ? 'العرض لكل قطعة' : 'الطول لكل قطعة';
+                    const oldValInc = axis === 'W' ? itemW : itemH;
+                    const perItemAvail = axis === 'W' ? perItemIncW : perItemIncH;
+                    const incCap = Math.max(0, oldValInc * 0.2);
+                    const incDelta = Math.min(Math.max(0, perItemAvail), incCap);
+                    if (incDelta > 0 && isFinite(incDelta) && oldValInc > 0) {
+                        const shownDelta = incDelta >= 1 ? +incDelta.toFixed(1) : incDelta;
+                        const newVal = oldValInc + shownDelta;
+                        const deltaTxt = formatDelta(shownDelta);
+                        const oldTxt = `${(+oldValInc.toFixed(1)).toString().replace(/\.0$/, '')}`;
+                        const newTxt = `${(+newVal.toFixed(1)).toString().replace(/\.0$/, '')}`;
+                        smartAdvisorHTML = `<div class=\"alert alert-info small mt-2\">💡 مستشار ذكي: عندك فراغ على الشيت — زوِّد ${dimLabelInc} بمقدار ${deltaTxt} (من ${oldTxt} إلى ${newTxt}) لتحسين استغلال الشيت.</div>`;
+                    }
+                }
+            }
+        }
+
+        // اقتراح زيادة المقاس عند وجود فراغ معتبر على الشيت (≥ 10%)
+        if (allowAdvisor && !smartAdvisorHTML) {
+            const productTypeNow = (document.getElementById('productType') && document.getElementById('productType').value) || '';
+            const uW = (typeof layoutResult.usedWidth === 'number' && layoutResult.usedWidth > 0) ? layoutResult.usedWidth : Math.min(itemW || 0, width || 0);
+            const uH = (typeof layoutResult.usedHeight === 'number' && layoutResult.usedHeight > 0) ? layoutResult.usedHeight : Math.min(itemH || 0, height || 0);
+            const slackW = Math.max(0, (width || 0) - (uW || 0));
+            const slackH = Math.max(0, (height || 0) - (uH || 0));
+            const slackPctW = (width > 0) ? (slackW / width) : 0;
+            const slackPctH = (height > 0) ? (slackH / height) : 0;
+            const SLACK_THRESHOLD = 0.10; // 10%
+            if (slackPctW >= SLACK_THRESHOLD || slackPctH >= SLACK_THRESHOLD) {
+                if (productTypeNow === 'box_bag') {
+                    const baseW = parseFloat(document.getElementById('coverWidth')?.value) || 0;   // عرض القاعدة
+                    const baseL = parseFloat(document.getElementById('coverHeight')?.value) || 0;  // طول القاعدة
+                    const depth = parseFloat(document.getElementById('coverDepth')?.value) || 0;   // الارتفاع
+                    const incCandidates = [];
+                    // زيادة عرض القاعدة: تستهلك من فراغ عرض الشيت
+                    {
+                        const avail = Math.max(0, slackW - 0.5);
+                        const cap = Math.max(0, baseW * 0.2);
+                        const delta = Math.min(avail, cap);
+                        if (delta > 0 && isFinite(delta) && baseW > 0) incCandidates.push({ label: 'عرض القاعدة', oldVal: baseW, delta });
+                    }
+                    // زيادة طول القاعدة: تستهلك من فراغ طول الشيت
+                    {
+                        const avail = Math.max(0, slackH - 0.5);
+                        const cap = Math.max(0, baseL * 0.2);
+                        const delta = Math.min(avail, cap);
+                        if (delta > 0 && isFinite(delta) && baseL > 0) incCandidates.push({ label: 'طول القاعدة', oldVal: baseL, delta });
+                    }
+                    // زيادة الارتفاع: تستهلك من فراغ المحورين معًا (لأنها تزيد W و H في المسطح)
+                    {
+                        const avail = Math.max(0, Math.min(slackW, slackH) - 0.5);
+                        const cap = Math.max(0, depth * 0.2);
+                        const delta = Math.min(avail, cap);
+                        if (delta > 0 && isFinite(delta) && depth > 0) incCandidates.push({ label: 'الارتفاع', oldVal: depth, delta });
+                    }
+                    if (incCandidates.length) {
+                        incCandidates.sort((a,b)=> b.delta - a.delta);
+                        const bestInc = incCandidates[0];
+                        const formatDelta = (d) => d >= 1 ? `${d.toFixed(1).replace(/\\.0$/, '')} سم` : `${Math.round(d * 10)} مم`;
+                        const shownDelta = bestInc.delta >= 1 ? +bestInc.delta.toFixed(1) : bestInc.delta;
+                        const newVal = bestInc.oldVal + shownDelta;
+                        const deltaTxt = formatDelta(shownDelta);
+                        const oldTxt = `${(+bestInc.oldVal.toFixed(1)).toString().replace(/\\.0$/, '')}`;
+                        const newTxt = `${(+newVal.toFixed(1)).toString().replace(/\\.0$/, '')}`;
+                        smartAdvisorHTML = `<div class=\"alert alert-info small mt-2\">💡 مستشار ذكي: عندك فراغ على الشيت — زوِّد ${bestInc.label} بمقدار ${deltaTxt} (من ${oldTxt} إلى ${newTxt}) لتحسين استغلال الشيت.</div>`;
+                    }
+                } else {
+                    // تعميم لباقي المنتجات بدون هامش الأمان 0.5 سم
+                    const axis = (slackPctW >= slackPctH) ? 'W' : 'H';
+                    const dimLabelInc = axis === 'W' ? 'العرض' : 'الطول';
+                    const oldValInc = axis === 'W' ? itemW : itemH;
+                    const incAvailableCm = axis === 'W' ? slackW : slackH;
+                    const incCap = Math.max(0, oldValInc * 0.2);
+                    const incDelta = Math.min(Math.max(0, incAvailableCm), incCap);
+                    if (incDelta > 0 && isFinite(incDelta) && oldValInc > 0) {
+                        const formatDelta = (d) => d >= 1 ? `${d.toFixed(1).replace(/\\.0$/, '')} سم` : `${Math.round(d * 10)} مم`;
+                        const shownDelta = incDelta >= 1 ? +incDelta.toFixed(1) : incDelta;
+                        const newVal = oldValInc + shownDelta;
+                        const deltaTxt = formatDelta(shownDelta);
+                        const oldTxt = `${(+oldValInc.toFixed(1)).toString().replace(/\\.0$/, '')}`;
+                        const newTxt = `${(+newVal.toFixed(1)).toString().replace(/\\.0$/, '')}`;
+                        smartAdvisorHTML = `<div class=\"alert alert-info small mt-2\">💡 مستشار ذكي: عندك فراغ على الشيت — زوِّد ${dimLabelInc} بمقدار ${deltaTxt} (من ${oldTxt} إلى ${newTxt}) لتحسين استغلال الشيت.</div>`;
+                    }
+                }
+            }
+        }
+        // في حالة عدم وجود نصيحة مناسبة: أظهر معلومات الفائض بشكل حيادي (بعد خصم البنسة من ذلك المحور)
+        if (allowAdvisor && !smartAdvisorHTML) {
+            const marginWInfo = (gripperOrientation === 'vertical') ? GRIPPER_MARGIN : 0;
+            const marginHInfo = (gripperOrientation === 'horizontal') ? GRIPPER_MARGIN : 0;
+            const uWInfo = (typeof layoutResult.usedWidth === 'number' && layoutResult.usedWidth > 0) ? layoutResult.usedWidth : Math.min(itemW || 0, width || 0);
+            const uHInfo = (typeof layoutResult.usedHeight === 'number' && layoutResult.usedHeight > 0) ? layoutResult.usedHeight : Math.min(itemH || 0, height || 0);
+            const slackWInfo = Math.max(0, (width - marginWInfo) - uWInfo);
+            const slackHInfo = Math.max(0, (height - marginHInfo) - uHInfo);
+            const msgs = [];
+            if (Math.round(slackWInfo) > 0) msgs.push(`فائض العرض حوالي ${Math.round(slackWInfo)} سم`);
+            if (Math.round(slackHInfo) > 0) msgs.push(`فائض الطول حوالي ${Math.round(slackHInfo)} سم`);
+            if (msgs.length) smartAdvisorHTML = `<div class=\"alert alert-info small mt-2\">💡 مستشار ذكي: عندك فراغ على الشيت — ${msgs.join(' و ')}.</div>`;
+        }
+        let outputHTML = `
+          <div class=\"layout-result-item\"><span>عدد أفراخ الورق الكاملة:</span><span class=\"fw-bold\">${totalFullSheets.toLocaleString()}</span></div>
+          <div class="layout-result-item"><span>عدد شيتات الطباعة المطلوبة:</span><span class="fw-bold">${totalPressSheets.toLocaleString()}</span></div>
+          <div class="layout-result-item"><span>مقاس شيت الطباعة المختار:</span><span class="fw-bold text-primary">${displayName} (${width} × ${height} سم)</span></div>
+          <div class="layout-result-item"><span>عدد ${finalItemLabel} في الشيت:</span><span class="fw-bold">${unitsPerSheet}</span></div>
+          <div class="layout-result-item"><span>كفاءة استخدام الشيت:</span><span class="fw-bold">${efficiencyPercent.toFixed(1)}%</span></div>
+          ${gripperWarningHTML}
+          ${smartAdvisorHTML}
+        `;
+        outputEl.innerHTML = outputHTML;
+
+        // إضافة رسالة قاعدة الهالك إن وُجدت
+        if (layoutResult.wasteMessage) {
+            outputEl.innerHTML += `<div class="warning">${layoutResult.wasteMessage}</div>`;
+        }
+
+        const sheetObjectForLayout = { name: displayName, width, height, gripperOrientation: 'none', gripperFits: true };
+        if (key !== 'kamel') {
+            const farkhLayout = getFarkhLayout({ ...sheetObjectForLayout, family: layoutResult.family || null });
+            const farkhTitle = `1. تقسيم الفرخ (${farkhLayout.width}×${farkhLayout.height} سم)`;
+            const farkhCustomContent = `${farkhLayout.units} شيت ${displayName} (${width}×${height} سم)`;
+            visualsContainer.appendChild(createVisual(farkhLayout, farkhTitle, 'sheet', farkhCustomContent, false)); 
+        }
+        const cardLayoutTitle = (key !== 'kamel') ? `2. تقسيم شيت ${displayName} (${width}×${height} سم)` : `تقسيم الشيت (${width}×${height} سم)`;
+        let customContent;
+        if(isCover){
+             customContent = `${unitsPerSheet} ${itemLabel.slice(0,-1)}`;
+        } else {
+            const printType = document.getElementById('printType').value;
+            const pageMultiplier = printType === 'single' ? 1 : 2;
+            const producibleSignatureSize = unitsPerSheet * pageMultiplier;
+            customContent = `${unitsPerSheet} ورقة / ${producibleSignatureSize} صفحة`;
+        }
+        visualsContainer.appendChild(createVisual(layoutResult, cardLayoutTitle, itemType, customContent, true)); 
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const productTypeLabels = {
+            book: { singular: 'الكتاب', plural: 'كتب', cover: 'الغلاف', piece: 'كتاب' },
+            notebook: { singular: 'النوت بوك', plural: 'نوت بوك', cover: 'الغلاف', piece: 'نوت بوك' },
+            card: { singular: 'الكارت', plural: 'كروت', cover: 'الكارت', piece: 'كارت' },
+            box_bag: { singular: 'العلبة', plural: 'علب', cover: 'العلبة', piece: 'علبة' }
+        };
+        const PRICING_DATA = {
+            zincs: { eighth: 40, quarter: 60, half: 140, full: 300 },
+            papers: {
+                'ورق طبع ابيض': { '55': 2.00, '60': 2.50, '70': 2.75, '80': 3.10, '90': 3.60, '100': 4.00 },
+                'ورق كوشيه': { '90': 3.5, '100': 3.75, '115': 4.30, '135': 5.1, '150': 5.6, '170': 6.30, '200': 7.45, '250': 9.25, '300': 11.75, '350': 13.25, '400': 14.85 },
+                'ورق برستول كوشية': { '120': 4.9, '150': 6.1, '170': 6.9, '200': 8.15, '250': 10.15, '300': 12.25, '350': 14.25, '400': 16.25 },
+                'ورق دوبلكس': { '150': 5.5, '200': 6.3, '250': 7.9, '300': 9.45, '350': 11, '400': 12.6, '450': 14.2, '500': 15.75, '600': 18.9 },
+                'ورق كرفت': { '90': 3.5, '100': 3.75, '120': 4, '150': 5, '180': 5.5, '200': 7, '250': 8, '300': 9, '350': 11, '400': 13 },
+                'استيكر': { 'ورق': 10, 'بلاستك ابيض': 40, 'بلاستك شفاف': 40 }
+            },
+            printing_per_1000: { eighth: 70, quarter: 100, half: 200, full: 400 },
+            lamination_per_full_sheet: { glossy: 2.8, matte: 3.0, silver: 3.5, gold: 3.5, laser: 3.25 },
+            uv_coating_per_1000: { eighth: 200, quarter: 400, half: 800, full: 1600 },
+            binding: {
+                perfect: { price_per_book: 8, min_charge: 50 },
+                hardcover: { price_per_book: 50, min_charge: 75 },
+                sewing: { price_per_book: 5, min_charge: 30 }
+            },
+            collating_per_signature: 0.25,
+            film_prices: { eighth: 50, quarter: 75, half: 150, full: 300 },
+            stamping: { die_price_per_cm: { '1.5': 1.5, '3': 3 }, running_cost_per_book: 0.50, min_die_cost: 50 },
+            kofraj: { die_price_per_cm: { male: 1.5, female: 1.5, male_female: 3 }, running_cost_per_book: 0.25, min_die_cost: 50 },
+            cutting: {
+                after: 50,
+                before: 50,
+                before_after: 100,
+                none: 0
+            },
+            slitting: { price_per_quarter_sheet: 12.5, min_charge: 20 },
+            die_cutting: {
+                die_cutting_form_cost: { eighth: 150, quarter: 250, half: 400, full: 700 },
+                running_cost_per_1000: { eighth: 100, quarter: 150, half: 200, full: 400 }
+            },
+            assembly: {
+                single_point: 50,
+                double_point: 100,
+                triple_point: 150,
+                bag_handle: 3000
+            }
+        };
+
+        const allInputs = document.querySelectorAll('#pricing-form input, #pricing-form select, #profitPercentage, #productType');
+
+        function calculateScenarioCost(config) {
+            let cost = 0;
+            const { inputs, internal, cover } = config;
+            // Helper: price per full sheet, with Gaier scaling by area vs 100x70
+            function getPaperPricePerFullSheet(paperType, grammage, layout) {
+                const basePrice = PRICING_DATA.papers[paperType]?.[grammage] || 0;
+                if (layout && layout.family === 'gaier') {
+                    const standardArea = 100 * 70;
+                    const gaierArea = 88 * 66;
+                    return +(basePrice * (gaierArea / standardArea)).toFixed(4);
+                }
+                return basePrice;
+            }
+            if(internal) {
+                const { layout, signaturesPerBook, effectivePrintSheets, internalFullSheets } = internal;
+                const paperPrice = getPaperPricePerFullSheet(inputs.paperType, inputs.paperGrammage, layout);
+                cost += internalFullSheets * paperPrice;
+                const zincPrice = PRICING_DATA.zincs[layout.pricingKey] || 0;
+                const zincMultiplier = inputs.printType === 'double' ? 2 : 1;
+                const zincsCount = (inputs.productType === 'notebook')
+                    ? inputs.printColors * zincMultiplier
+                    : signaturesPerBook * inputs.printColors * zincMultiplier;
+                cost += zincsCount * zincPrice;
+                const printingPricePer1000 = PRICING_DATA.printing_per_1000[layout.pricingKey] || 0;
+                const sideMultiplier = inputs.printType === 'single' ? 1 : 2;
+                const thousands = (inputs.productType === 'book')
+                     ? Math.max(1, Math.ceil((inputs.bookCount - 50) / 1000))
+                     : Math.max(1, Math.ceil(effectivePrintSheets / 1000));
+                const runs = (inputs.productType === 'book') ? signaturesPerBook : 1;
+                const printingCost = runs * printingPricePer1000 * inputs.printColors * sideMultiplier * thousands;
+                cost += printingCost;
+            }
+            if(cover) {
+                 const { layout } = cover;
+                 const coverPaperPrice = getPaperPricePerFullSheet(inputs.coverPaperType, inputs.coverPaperGrammage, layout);
+                 cost += layout.frakhat * coverPaperPrice;
+                 const coverZincPrice = PRICING_DATA.zincs[layout.pricingKey] || 0;
+                 const coverZincMultiplier = inputs.coverPrintType === 'double' ? 2 : 1;
+                 cost += inputs.coverPrintColors * coverZincMultiplier * coverZincPrice;
+                 const coverPrintingPrice = PRICING_DATA.printing_per_1000[layout.pricingKey] || 0;
+                 const billableCoverThousands = Math.max(1, Math.ceil(layout.printSheets / 1000));
+                 const coverPrintingSideMultiplier = inputs.coverPrintType === 'single' ? 1 : 2;
+                 cost += billableCoverThousands * coverPrintingPrice * inputs.coverPrintColors * coverPrintingSideMultiplier;
+            }
+            return cost;
+        }
+
+        // --- START: WASTE RULE FUNCTION ---
+        function applyWasteRule(totalSheets) {
+            // تطبيق قاعدة الهدر = الألف + 50 شيت
+            let paperSheets = totalSheets;
+            let printSheets = totalSheets;
+            let message = '';
+            
+            if (totalSheets < 1000) {
+                // لو إجمالي الشيتات < 1000 → الورق والطباعة = 1000
+                paperSheets = 1000;
+                printSheets = 1000;
+                message = 'تم تقريب الشيتات إلى 1000 (الحد الأدنى للطباعة)';
+            } else {
+                // حساب الألفية الأساسية
+                const baseThousand = Math.floor(totalSheets / 1000) * 1000;
+                // حساب الزيادة فوق الألفية
+                const excess = totalSheets - baseThousand;
+                
+                if (excess <= 50) {
+                    // لو الزيادة فوق الألفية ≤ 50 → الورق = العدد الفعلي، الطباعة = الألفية الأساسية
+                    paperSheets = totalSheets;
+                    printSheets = baseThousand;
+                    message = `تم احتساب ${excess} شيت كهالك في الطباعة`;
+                } else {
+                    // لو الزيادة > 50 → تقفيل الورق والطباعة على الألفية التالية كاملة
+                    const nextThousand = baseThousand + 1000;
+                    paperSheets = nextThousand;
+                    printSheets = nextThousand;
+                    message = `تم تقريب الشيتات إلى ${nextThousand.toLocaleString()} (الألفية التالية)`;
+                }
+            }
+            
+            return { paperSheets, printSheets, message };
+        }
+        
+        // --- START: MODIFIED LOGIC ---
+        function getLayoutForSheet(sheetKey, itemW, itemH, quantity, isCover = false) {
+            const sheet = layoutSheets[sheetKey];
+            if (!sheet || !itemW || !itemH || quantity <= 0) return null;
+            // Step 1: Calculate layout on the FULL sheet dimensions first.
+            const arrangement = findBestCardArrangement(sheet.width, sheet.height, itemW, itemH);
+            const unitsPerSheet = arrangement.positions.length;
+            if (unitsPerSheet === 0) return null;
+            // Step 2: Determine gripper orientation and check for space.
+            let gripperOrientation, wastedSpace, shortfall, itemsOnEdge;
+            if (sheet.key === 'eighth') { // Gripper on the width (vertical)
+                gripperOrientation = 'vertical';
+                wastedSpace = sheet.width - arrangement.usedWidth;
+                itemsOnEdge = arrangement.itemsOnWidthEdge;
+            } else { // Gripper on the height (horizontal)
+                gripperOrientation = 'horizontal';
+                wastedSpace = sheet.height - arrangement.usedHeight;
+                itemsOnEdge = arrangement.itemsOnHeightEdge;
+            }
+            shortfall = Math.max(0, GRIPPER_MARGIN - wastedSpace);
+            const gripperFits = shortfall <= 0.001; // Use a small tolerance for floating point math
+            // Step 3: Compile results.
+            const sheetsPerFarkh = getFarkhLayout(sheet).units || 1;
+            let result = {
+                ...sheet,
+                displayName: sheet.name,
+                key: sheetKey,
+                pricingKey: sheet.key,
+                unitsPerSheet,
+                sheetsPerFarkh,
+                positions: arrangement.positions,
+                usedWidth: arrangement.usedWidth,
+                usedHeight: arrangement.usedHeight,
+                itemW,
+                itemH,
+                sheetArea: sheet.width * sheet.height,
+                gripperOrientation,
+                gripperFits,
+                wastedSpace,
+                shortfall,
+                itemsOnEdge,
+                itemsOnWidthEdge: arrangement.itemsOnWidthEdge,
+                itemsOnHeightEdge: arrangement.itemsOnHeightEdge,
+            };
+            if (isCover) {
+                const coverWaste = applyWasteRule(Math.ceil(quantity / unitsPerSheet));
+                result.neededSheets = coverWaste.paperSheets;
+                result.printSheets = coverWaste.printSheets;
+                result.frakhat = Math.ceil(result.neededSheets / sheetsPerFarkh);
+                result.wasteMessage = coverWaste.message;
+            }
+            return result;
+        }
+        // --- END: MODIFIED LOGIC ---
+
+        function findBestOptions(quantity) {
+            const inputs = getInputs();
+            let bestInternalOption = { cost: Infinity, config: null };
+            let bestCoverOption = { cost: Infinity, config: null };
+            const hasInternalPages = (inputs.productType === 'book' || inputs.productType === 'notebook') && inputs.bookPages > 0 && inputs.bookWidth > 0 && inputs.bookHeight > 0;
+            
+            // تحسين اختيار الشيت والملازم للصفحات الداخلية
+            if (hasInternalPages) {
+                // اختبار جميع مقاسات الشيت المتاحة إذا كان الاختيار تلقائي
+                const sheetKeysToTest = inputs.sheetSize === 'auto' ? Object.keys(layoutSheets) : [inputs.sheetSize];
+                for (const sheetKey of sheetKeysToTest) {
+                    const internalLayout = getLayoutForSheet(sheetKey, inputs.bookWidth, inputs.bookHeight, inputs.bookCount, false);
+                    if (!internalLayout) continue;
+                    
+                    const pageMultiplier = inputs.printType === 'single' ? 1 : 2;
+                    const producibleSignatureSize = internalLayout.unitsPerSheet * pageMultiplier;
+                    
+                    // تحديد أحجام الملازم المناسبة
+                    let targetSignatureSizes = [];
+                    if (inputs.signatureSize === 'auto') {
+                        // اختبار جميع أحجام الملازم الممكنة للحصول على أفضل تكلفة
+                        const possibleSignatureSizes = [2, 4, 8, 16, 32, 64];
+                        targetSignatureSizes = possibleSignatureSizes.filter(size => 
+                            producibleSignatureSize >= size && size <= inputs.bookPages
+                        );
+                        if (targetSignatureSizes.length === 0) {
+                            targetSignatureSizes = [producibleSignatureSize];
+                        }
+                    } else {
+                        const targetSize = parseInt(inputs.signatureSize);
+                        if (producibleSignatureSize >= targetSize) {
+                            targetSignatureSizes = [targetSize];
+                        } else {
+                            continue; // تخطي هذا المقاس إذا كان غير مناسب
+                        }
+                    }
+                    
+                    // اختبار كل حجم ملزمة ممكن لهذا الشيت
+                    for (const targetSignatureSize of targetSignatureSizes) {
+                        if (!targetSignatureSize || targetSignatureSize === 0) continue;
+                        
+                        const signaturesPerBook = Math.ceil(inputs.bookPages / targetSignatureSize);
+                        const totalInternalPressSheets = signaturesPerBook * inputs.bookCount;
+                        const wasteResult = applyWasteRule(totalInternalPressSheets);
+                        const internalFullSheets = Math.ceil(totalInternalPressSheets / internalLayout.sheetsPerFarkh);
+                        const effectivePrintSheets = wasteResult.printSheets; 
+                        const wasteMessageInternal = wasteResult.message;
+                        // Signature Adjustment message (for books): add blank pages to complete last signature
+                        let signatureAdjustmentMessage = '';
+                        if (inputs.productType === 'book') {
+                            const adjustedPages = signaturesPerBook * targetSignatureSize;
+                            const blankPagesAdded = Math.max(0, adjustedPages - inputs.bookPages);
+                            if (blankPagesAdded > 0) {
+                                signatureAdjustmentMessage = `📖 قاعدة استكمال الملازم: تمت إضافة ${blankPagesAdded} صفحات فارغة ليصبح إجمالي الصفحات ${adjustedPages} (${signaturesPerBook} ملزمة × ${targetSignatureSize} صفحات)`;
+                            }
+                        }
+
+                        const scenarioConfig = {
+                            inputs,
+                            internal: { 
+                                layout: internalLayout, 
+                                signatureSize: targetSignatureSize, 
+                                signaturesPerBook, 
+                                totalInternalPressSheets, 
+                                internalFullSheets,
+                                effectivePrintSheets,
+                                wasteMessageInternal,
+                                signatureAdjustmentMessage
+                            }
+                        };
+                        const cost = calculateScenarioCost(scenarioConfig);
+                        if (cost < bestInternalOption.cost) {
+                            bestInternalOption = { cost, config: scenarioConfig.internal };
+                        }
+                    }
+                }
+            }
+            
+            // تحسين اختيار شيت الغلاف أو المنتج
+            let itemW = inputs.coverWidth;
+            let itemH = inputs.coverHeight;
+            if (inputs.productType === 'box_bag' && itemW > 0 && itemH > 0 && inputs.coverDepth > 0) {
+                itemW = inputs.coverWidth + inputs.coverDepth;
+                itemH = inputs.coverHeight + inputs.coverDepth;
+            }
+            
+            if ((inputs.enableCover || !hasInternalPages) && itemW > 0 && itemH > 0) {
+                 const sheetKeysToTest = inputs.coverSheetSelect === 'auto' ? Object.keys(layoutSheets) : [inputs.coverSheetSelect];
+                 for (const sheetKey of sheetKeysToTest) {
+                    const coverLayout = getLayoutForSheet(sheetKey, itemW, itemH, quantity, true);
+                    if (!coverLayout) continue;
+                    const scenarioConfig = { inputs, cover: { layout: coverLayout } };
+                    const cost = calculateScenarioCost(scenarioConfig);
+                    if (cost < bestCoverOption.cost) {
+                        bestCoverOption = { cost, config: scenarioConfig.cover };
+                    }
+                 }
+            }
+            
+            return { 
+                finalInternalConfig: bestInternalOption.config,
+                finalCoverConfig: bestCoverOption.config
+            };
+        }
+
+        function populatePaperSelect(selectElement, defaultType, defaultGrammage) {
+            selectElement.innerHTML = Object.keys(PRICING_DATA.papers).map(type => `<option value="${type}">${type}</option>`).join('');
+            selectElement.value = defaultType;
+            const grammageSelect = document.getElementById(selectElement.id.replace('Type', 'Grammage'));
+            function updateGrammages() {
+                const selectedPaper = selectElement.value;
+                const subOptions = PRICING_DATA.papers[selectedPaper];
+                grammageSelect.innerHTML = Object.keys(subOptions).map(opt => `<option value="${opt}">${selectedPaper === 'استيكر' ? opt : opt + ' جرام'}</option>`).join('');
+                if (Object.keys(subOptions).includes(defaultGrammage)) { grammageSelect.value = defaultGrammage; } else { grammageSelect.selectedIndex = 0;}
+            }
+            selectElement.addEventListener('change', updateGrammages);
+            updateGrammages();
+        }
+        populatePaperSelect(document.getElementById('paperType'), 'ورق كوشيه', '90');
+        populatePaperSelect(document.getElementById('coverPaperType'), 'ورق برستول كوشية', '300');
+
+        function setupToggleable(checkboxId, sectionId) {
+             const checkbox = document.getElementById(checkboxId);
+             if (sectionId) {
+                const section = document.getElementById(sectionId);
+                checkbox.addEventListener('change', () => section.classList.toggle('active', checkbox.checked));
+                section.classList.toggle('active', checkbox.checked);
+             }
+        }
+        setupToggleable('enableCover', 'cover-options');
+        setupToggleable('enableCoverLamination', 'cover-lamination-options');
+        setupToggleable('enableCoverSpotUV', 'cover-spotuv-options');
+        setupToggleable('enableCoverStamping', 'cover-stamping-options');
+        setupToggleable('enableCoverKofraj', 'cover-kofraj-options');
+        setupToggleable('enableBinding', 'binding-options');
+        setupToggleable('enableCutting', 'cutting-options');
+        setupToggleable('enableDieCutting', 'die-cutting-options');
+        setupToggleable('enableAssembly', 'assembly-options');
+
+        function getInputs() {
+            return {
+                productType: document.getElementById('productType').value,
+                bookCount: parseInt(document.getElementById('bookCount').value) || 0,
+                itemQuantity: parseInt(document.getElementById('itemQuantity').value) || 0,
+                bookPages: parseInt(document.getElementById('bookPages').value) || 0,
+                bookWidth: parseFloat(document.getElementById('bookWidth').value) || 0,
+                bookHeight: parseFloat(document.getElementById('bookHeight').value) || 0,
+                signatureSize: document.getElementById('signatureSize').value,
+                paperType: document.getElementById('paperType').value,
+                paperGrammage: document.getElementById('paperGrammage').value,
+                sheetSize: document.getElementById('sheetSize').value,
+                printColors: parseInt(document.getElementById('printColors').value) || 1,
+                printType: document.getElementById('printType').value,
+                enableCover: document.getElementById('enableCover').checked,
+                coverWidth: parseFloat(document.getElementById('coverWidth').value) || 0,
+                coverHeight: parseFloat(document.getElementById('coverHeight').value) || 0,
+                coverDepth: parseFloat(document.getElementById('coverDepth').value) || 0,
+                coverSheetSelect: document.getElementById('coverSheetSelect').value,
+                coverPaperType: document.getElementById('coverPaperType').value,
+                coverPaperGrammage: document.getElementById('coverPaperGrammage').value,
+                coverPrintColors: parseInt(document.getElementById('coverPrintColors').value) || 1,
+                coverPrintType: document.getElementById('coverPrintType').value,
+                enableCoverLamination: document.getElementById('enableCoverLamination').checked,
+                coverLaminationType: document.getElementById('coverLaminationType').value,
+                coverLaminationSides: document.getElementById('coverLaminationSides').value,
+                enableCoverSpotUV: document.getElementById('enableCoverSpotUV').checked,
+                coverSpotUVType: document.getElementById('coverSpotUVType').value,
+                enableUvCoating: document.getElementById('enableUvCoating').checked,
+                enableCoverStamping: document.getElementById('enableCoverStamping').checked,
+                coverStampDieCount: parseInt(document.getElementById('coverStampDieCount').value) || 1,
+                coverStampType: document.getElementById('coverStampType').value,
+                coverStampWidth: parseFloat(document.getElementById('coverStampWidth').value) || 0,
+                coverStampHeight: parseFloat(document.getElementById('coverStampHeight').value) || 0,
+                enableCoverKofraj: document.getElementById('enableCoverKofraj').checked,
+                coverKofrajDieCount: parseInt(document.getElementById('coverKofrajDieCount').value) || 1,
+                coverKofrajType: document.getElementById('coverKofrajType').value,
+                coverKofrajWidth: parseFloat(document.getElementById('coverKofrajWidth').value) || 0,
+                coverKofrajHeight: parseFloat(document.getElementById('coverKofrajHeight').value) || 0,
+                enableCollating: document.getElementById('enableCollating').checked,
+                enableSewing: document.getElementById('enableSewing').checked,
+                enableBinding: document.getElementById('enableBinding').checked,
+                bindingType: document.getElementById('bindingType').value,
+                enableCutting: document.getElementById('enableCutting').checked,
+                cuttingType: document.getElementById('cuttingType').value,
+                enableSlitting: document.getElementById('enableSlitting').checked,
+                enableDieCutting: document.getElementById('enableDieCutting').checked,
+                enableAssembly: document.getElementById('enableAssembly').checked,
+                assemblyType: document.getElementById('assemblyType').value
+            };
+        }
+
+        function updateFlatSizeInfo() {
+            const infoDiv = document.getElementById('flatSizeInfo');
+            const productType = document.getElementById('productType').value;
+            if (productType === 'box_bag') {
+                const w = parseFloat(document.getElementById('coverWidth').value) || 0;
+                const l = parseFloat(document.getElementById('coverHeight').value) || 0;
+                const d = parseFloat(document.getElementById('coverDepth').value) || 0;
+                if (w > 0 && l > 0 && d > 0) {
+                    const flatW = w + d;
+                    const flatH = l + d;
+                    document.getElementById('calculatedFlatSize').textContent = `${flatW.toFixed(1)} × ${flatH.toFixed(1)} سم`;
+                    infoDiv.style.display = 'block';
+                } else {
+                    infoDiv.style.display = 'none';
+                }
+            } else {
+                infoDiv.style.display = 'none';
+            }
+        }
+
+        function calculatePrice() {
+            if(isProgrammaticChange) return;
+            updateFlatSizeInfo(); 
+            const inputs = getInputs();
+            const labels = productTypeLabels[inputs.productType];
+            const hasInternalPages = (inputs.productType === 'book' || inputs.productType === 'notebook');
+            const finalQuantity = hasInternalPages
+                                ? inputs.bookCount 
+                                : inputs.itemQuantity;
+            const { finalInternalConfig, finalCoverConfig } = findBestOptions(finalQuantity);
+
+            if (inputs.sheetSize === 'auto' && finalInternalConfig) {
+                const { displayName, width, height } = finalInternalConfig.layout;
+                document.getElementById('autoSheetNote').textContent = `الأفضل: شيت ${displayName} (${width}×${height} سم)`;
+            } else {
+                document.getElementById('autoSheetNote').textContent = '';
+            }
+            if (inputs.signatureSize === 'auto' && finalInternalConfig) {
+                 document.getElementById('autoSignatureNote').textContent = `الأفضل: ملزمة ${finalInternalConfig.signatureSize} صفحة`;
+            } else {
+                 document.getElementById('autoSignatureNote').textContent = '';
+            }
+            if (inputs.coverSheetSelect === 'auto' && finalCoverConfig) {
+                const { displayName, width, height } = finalCoverConfig.layout;
+                document.getElementById('autoCoverSheetNote').textContent = `الأفضل: شيت ${displayName} (${width}×${height} سم)`;
+            } else {
+                 document.getElementById('autoCoverSheetNote').textContent = '';
+            }
+
+            if (finalInternalConfig) {
+                displayLayoutVisuals(
+                    finalInternalConfig.layout,
+                    finalInternalConfig.totalInternalPressSheets,
+                    finalInternalConfig.internalFullSheets,
+                    'internal_layout_output',
+                    'internal_layout_visuals',
+                    'card',
+                    false,
+                    '' // No item label needed for internal
+                );
+            } else {
+                document.getElementById('internal_layout_output').innerHTML = '';
+                document.getElementById('internal_layout_visuals').innerHTML = '';
+            }
+
+            if (inputs.enableCover && finalCoverConfig) {
+                displayLayoutVisuals(
+                    finalCoverConfig.layout,
+                    finalCoverConfig.layout.printSheets,
+                    finalCoverConfig.layout.frakhat,
+                    'cover_layout_output',
+                    'cover_layout_visuals',
+                    'card',
+                    true,
+                    labels.plural
+                );
+            } else {
+                document.getElementById('cover_layout_output').innerHTML = '';
+                document.getElementById('cover_layout_visuals').innerHTML = '';
+            }
+
+            let totalCost = 0;
+            let breakdownHTML = '';
+
+            const addCostItem = (label, value, comment = '', header = null) => {
+                if (header && !breakdownHTML.includes(header)) { breakdownHTML += `<div class="cost-header">${header}</div>`; }
+                if (value > 0) {
+                    totalCost += value;
+                    breakdownHTML += `<div class="cost-item"><div><span class="cost-label">${label}</span>${comment ? `<div class="text-muted small">${comment}</div>` : ''}</div><span class="cost-value">${value.toFixed(2)} ج</span></div>`;
+                }
+            };
+
+            if (finalInternalConfig) {
+                const { layout, signaturesPerBook, internalFullSheets, effectivePrintSheets, totalInternalPressSheets, wasteMessageInternal, signatureAdjustmentMessage } = finalInternalConfig;
+                document.getElementById('book-calc-info').innerHTML = `عدد الملازم لكل ${labels.piece}: ${signaturesPerBook} | إجمالي شيتات الطباعة: ${totalInternalPressSheets.toLocaleString()} (${layout.displayName || ''})` +
+                    (wasteMessageInternal ? '<br><span class="text-success"><i class="bi bi-info-circle"></i> ' + wasteMessageInternal + '</span>' : '') +
+                    (signatureAdjustmentMessage ? '<br><span class="text-primary">' + signatureAdjustmentMessage + '</span>' : '');
+                const paperPrice = PRICING_DATA.papers[inputs.paperType]?.[inputs.paperGrammage] || 0;
+                addCostItem('الورق الداخلي', internalFullSheets * paperPrice, `${internalFullSheets.toLocaleString()} فرخ كامل`, 'تكاليف الورق الداخلي');
+
+                const zincPrice = PRICING_DATA.zincs[layout.pricingKey];
+                const zincMultiplier = inputs.printType === 'double' ? 2 : 1;
+                const zincsCount = inputs.productType === 'notebook' ? inputs.printColors * zincMultiplier : signaturesPerBook * inputs.printColors * zincMultiplier;
+                const zincComment = inputs.productType === 'notebook' 
+                    ? `${inputs.printColors} لون`
+                    : `${signaturesPerBook} ملازم × ${inputs.printColors} لون`;
+                addCostItem('زنكات الورق الداخلي', zincsCount * zincPrice, zincComment, 'تكاليف الورق الداخلي');
+
+                const printingPricePer1000 = PRICING_DATA.printing_per_1000[layout.pricingKey];
+                const sideMultiplier = inputs.printType === 'single' ? 1 : 2;
+                const thousands = inputs.productType === 'book'
+    ? Math.max(1, Math.ceil((inputs.bookCount - 50) / 1000))
+    : Math.max(1, Math.ceil(effectivePrintSheets / 1000));
+const runs = inputs.productType === 'book' ? signaturesPerBook : 1;
+const printingCost = runs * printingPricePer1000 * inputs.printColors * sideMultiplier * thousands;
+const printingComment = inputs.productType === 'book'
+    ? `(${signaturesPerBook.toLocaleString()} ملازم × ${inputs.printColors} لون × ${sideMultiplier === 1 ? 'وجه' : 'وجهين'} × ${thousands.toLocaleString()})`
+    : `(${thousands.toLocaleString()} ألف × ${inputs.printColors} لون × ${sideMultiplier === 1 ? 'وجه' : 'وجهين'})`;
+                addCostItem('طباعة الورق الداخلي', printingCost, printingComment, 'تكاليف الورق الداخلي');
+            } else {
+                 document.getElementById('book-calc-info').innerHTML = '';
+            }
+
+            if (inputs.enableCover && finalCoverConfig) {
+                const { layout } = finalCoverConfig;
+                const headerText = hasInternalPages ? `تكاليف ${labels.cover}` : `تكاليف ${labels.singular}`;
+                const itemPaperLabel = `ورق ${hasInternalPages ? labels.cover : labels.singular}`;
+                const itemZincsLabel = `زنكات ${hasInternalPages ? labels.cover : labels.singular}`;
+                const itemPrintingLabel = `طباعة ${hasInternalPages ? labels.cover : labels.singular}`;
+                const coverPaperPrice = PRICING_DATA.papers[inputs.coverPaperType]?.[inputs.coverPaperGrammage] || 0;
+                addCostItem(itemPaperLabel, layout.frakhat * coverPaperPrice, `${layout.frakhat.toLocaleString()} فرخ كامل`, headerText);
+
+                const coverZincPrice = PRICING_DATA.zincs[layout.pricingKey] || 0;
+                const coverZincMultiplier = inputs.coverPrintType === 'double' ? 2 : 1;
+                addCostItem(itemZincsLabel, inputs.coverPrintColors * coverZincMultiplier * coverZincPrice, `${inputs.coverPrintColors} لون`, headerText);
+
+                const coverPrintingPrice = PRICING_DATA.printing_per_1000[layout.pricingKey] || 0;
+                const billableCoverThousands = Math.max(1, Math.ceil(layout.printSheets / 1000));
+                const coverPrintingSideMultiplier = inputs.coverPrintType === 'single' ? 1 : 2;
+                addCostItem(itemPrintingLabel, billableCoverThousands * coverPrintingPrice * inputs.coverPrintColors * coverPrintingSideMultiplier, `على أساس ${billableCoverThousands.toLocaleString()} ألف`, headerText);
+
+                if (inputs.enableCoverLamination) {
+                    addCostItem(`سلوفان`, layout.frakhat * (PRICING_DATA.lamination_per_full_sheet[inputs.coverLaminationType] || 0) * (inputs.coverLaminationSides === 'double' ? 2 : 1), `${layout.frakhat.toLocaleString()} فرخ كامل`, headerText);
+                }
+            }
+
+            const ensureFinalFinishingHeader = (headerName = 'التشطيبات النهائية') => {
+                if(!breakdownHTML.includes(headerName) && breakdownHTML !== '') { breakdownHTML += `<div class="cost-header">${headerName}</div>`; }
+            };
+
+            let targetConfig = finalCoverConfig ? finalCoverConfig : (finalInternalConfig ? { layout: { ...finalInternalConfig.layout, printSheets: finalInternalConfig.effectivePrintSheets }} : null);
+            if(targetConfig) {
+                 const { pricingKey, printSheets, displayName } = targetConfig.layout;
+                 const coverHeaderText = `تشطيبات خاصة (تطبق على ${hasInternalPages ? labels.cover : labels.singular})`;
+                 if (inputs.enableCoverStamping) {
+                    ensureFinalFinishingHeader(coverHeaderText);
+                    const dieArea = inputs.coverStampWidth * inputs.coverStampHeight;
+                    const diePricePerCm = PRICING_DATA.stamping.die_price_per_cm[inputs.coverStampType] || 0;
+                    const dieCost = Math.max(PRICING_DATA.stamping.min_die_cost, dieArea * diePricePerCm * inputs.coverStampDieCount);
+                    addCostItem('أكلاشيه البصمة', dieCost, `${inputs.coverStampDieCount} أكلاشيه`);
+                    const runningCost = finalQuantity * PRICING_DATA.stamping.running_cost_per_book;
+                    addCostItem('تشغيل البصمة', runningCost, `${finalQuantity.toLocaleString()} ${labels.piece}`);
+                }
+                if (inputs.enableCoverKofraj) {
+                    ensureFinalFinishingHeader(coverHeaderText);
+                    const dieArea = inputs.coverKofrajWidth * inputs.coverKofrajHeight;
+                    const diePricePerCm = PRICING_DATA.kofraj.die_price_per_cm[inputs.coverKofrajType] || 0;
+                    const dieCost = Math.max(PRICING_DATA.kofraj.min_die_cost, dieArea * diePricePerCm * inputs.coverKofrajDieCount);
+                    addCostItem('أكلاشيه الكوفراج', dieCost, `${inputs.coverKofrajDieCount} أكلاشيه`);
+                    const runningCost = finalQuantity * PRICING_DATA.kofraj.running_cost_per_book;
+                    addCostItem('تشغيل الكوفراج', runningCost, `${finalQuantity.toLocaleString()} ${labels.piece}`);
+                }
+                 if (inputs.enableCoverSpotUV) {
+                    ensureFinalFinishingHeader(coverHeaderText);
+                    const filmPrice = PRICING_DATA.film_prices[pricingKey] || 0;
+                    const sides = inputs.coverSpotUVType === 'double' ? 2 : 1;
+                    addCostItem('فيلم Spot UV', filmPrice * sides, `${sides} وجه`);
+                    const runningCostPer1000 = PRICING_DATA.uv_coating_per_1000[pricingKey] || 0;
+                    const billableRuns = Math.ceil(printSheets / 1000);
+                    const runningCost = billableRuns * runningCostPer1000 * sides;
+                     addCostItem('تشغيل Spot UV', runningCost, `(${billableRuns.toLocaleString()} مرور × ${sides} وجه)`);
+                }
+                if (inputs.enableUvCoating) {
+                    ensureFinalFinishingHeader(coverHeaderText);
+                    const uvCostPer1000 = PRICING_DATA.uv_coating_per_1000[pricingKey] || 0;
+                    const billableRuns = Math.ceil(printSheets / 1000);
+                    const uvCost = billableRuns * uvCostPer1000;
+                    addCostItem('تكلفة UV Coating', uvCost, `(${billableRuns.toLocaleString()} مرور)`);
+                }
+            }
+
+            const assemblyHeaderName = 'التجميع والتقفيل';
+            if (inputs.enableDieCutting && targetConfig) {
+                const { pricingKey, printSheets, displayName } = targetConfig.layout;
+                ensureFinalFinishingHeader(assemblyHeaderName);
+                const formeCost = PRICING_DATA.die_cutting.die_cutting_form_cost[pricingKey] || 0;
+                addCostItem('فرمة التكسير', formeCost, `لمقاس ${displayName}`);
+                const runningCostPer1000 = PRICING_DATA.die_cutting.running_cost_per_1000[pricingKey] || 0;
+                if (runningCostPer1000 > 0 && printSheets > 0) {
+                    const billableRuns = Math.ceil(printSheets / 1000);
+                    const runningCost = billableRuns * runningCostPer1000;
+                    addCostItem('تشغيل التكسير', runningCost, `مقاس ${displayName} (${(billableRuns).toLocaleString()} مرور)`);
+                }
+            }
+
+            if (inputs.enableAssembly && inputs.assemblyType !== 'none' && finalQuantity > 0) {
+                 const isFolderLike = inputs.productType === 'box_bag' || inputs.productType === 'card';
+                 if (isFolderLike) {
+                     ensureFinalFinishingHeader(assemblyHeaderName);
+                     let basePricePer1000 = PRICING_DATA.assembly[inputs.assemblyType] || 0;
+                     let discount = 0;
+                     let discountText = '';
+                     if (finalQuantity > 20000) {
+                         discount = 0.20;
+                         discountText = '(خصم 20%)';
+                     } else if (finalQuantity > 5000) {
+                         discount = 0.10;
+                         discountText = '(خصم 10%)';
+                     }
+                     const adjustedPricePer1000 = basePricePer1000 * (1 - discount);
+                     const totalAssemblyCost = (finalQuantity / 1000) * adjustedPricePer1000;
+                     const labelElement = document.querySelector(`#assemblyType option[value="${inputs.assemblyType}"]`);
+                     const labelText = labelElement ? labelElement.textContent : 'تقفيل';
+                     const comment = `لكل 1000 قطعة ${discountText}`.trim();
+                     addCostItem(labelText, totalAssemblyCost, comment);
+                 }
+            }
+
+            const totalFullSheets = (finalInternalConfig ? finalInternalConfig.internalFullSheets : 0) + (finalCoverConfig ? finalCoverConfig.layout.frakhat : 0);
+            if (inputs.enableCutting && inputs.cuttingType !== 'none' && totalFullSheets > 0) {
+                 ensureFinalFinishingHeader('تشطيبات أخرى');
+                 addCostItem(`تكلفة القص`, PRICING_DATA.cutting[inputs.cuttingType] || 0, `لإجمالي الكمية`);
+            }
+             if(inputs.enableSlitting && totalFullSheets > 0) {
+                 ensureFinalFinishingHeader('تشطيبات أخرى');
+                 const totalQuarterSheets = totalFullSheets * 4;
+                 const slittingCost = Math.max(PRICING_DATA.slitting.min_charge, totalQuarterSheets * PRICING_DATA.slitting.price_per_quarter_sheet);
+                 addCostItem('التشريح', slittingCost, `${totalQuarterSheets.toLocaleString()} ربع فرخ`);
+            }
+
+            if (finalInternalConfig) {
+                const bookAssemblyHeader = `التجليد والتجميع (${labels.plural})`;
+                if(inputs.enableCollating) { ensureFinalFinishingHeader(bookAssemblyHeader); addCostItem('تجميع الملازم', finalQuantity * finalInternalConfig.signaturesPerBook * PRICING_DATA.collating_per_signature, `${finalInternalConfig.signaturesPerBook} ملازم`); }
+                if(inputs.enableSewing) { ensureFinalFinishingHeader(bookAssemblyHeader); const sewingInfo = PRICING_DATA.binding.sewing; addCostItem('الخياطة', Math.max(sewingInfo.min_charge, finalQuantity * sewingInfo.price_per_book), `${finalQuantity.toLocaleString()} ${labels.piece}`); }
+            }
+
+            if ((inputs.productType === 'book' || inputs.productType === 'notebook') && inputs.enableBinding && inputs.bindingType !== 'none') { 
+                ensureFinalFinishingHeader(`التجليد والتجميع (${labels.plural})`); 
+                const bindingInfo = PRICING_DATA.binding[inputs.bindingType]; 
+                const bindingLabel = document.querySelector(`#bindingType option[value="${inputs.bindingType}"]`).textContent; 
+                addCostItem(`التجليد (${bindingLabel})`, Math.max(bindingInfo.min_charge, finalQuantity * bindingInfo.price_per_book), `${finalQuantity.toLocaleString()} ${labels.piece}`); 
+            }
+
+            const profitPercentage = parseFloat(document.getElementById('profitPercentage').value) || 0;
+            const profitAmount = totalCost * (profitPercentage / 100);
+            const finalTotal = totalCost + profitAmount;
+
+            document.getElementById('results-breakdown').innerHTML = breakdownHTML || '<p class="text-muted text-center p-5">الرجاء إدخال البيانات لحساب التكلفة.</p>';
+            document.getElementById('sub-total-price').textContent = `${totalCost.toFixed(2)} جنيه`;
+            document.getElementById('profit-value').textContent = `+${profitAmount.toFixed(2)} جنيه`;
+            document.getElementById('total-price').textContent = `${finalTotal.toFixed(2)} جنيه`;
+        }
+
+        allInputs.forEach(input => {
+            const eventType = (input.type === 'number' || input.type === 'text') ? 'input' : 'change';
+            input.addEventListener(eventType, () => {
+                if (!isProgrammaticChange) {
+                    setTimeout(calculatePrice, 50);
+                }
+            });
+        });
+
+        ['coverWidth', 'coverHeight', 'coverDepth'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateFlatSizeInfo);
+        });
+
+        const wizardNavLinks = document.querySelectorAll('.wizard-nav-link');
+        const wizardPanes = document.querySelectorAll('.tab-pane');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        let currentStep = 1;
+
+        function updateWizardUI() {
+            const visibleNavLinks = [...wizardNavLinks].filter(link => link.parentElement.style.display !== 'none');
+            const totalSteps = visibleNavLinks.length;
+            wizardPanes.forEach(pane => pane.classList.remove('active'));
+            wizardNavLinks.forEach(link => link.classList.remove('active'));
+            let activeLink = document.querySelector(`.wizard-nav-link[data-step="${currentStep}"]`);
+            if (!activeLink || activeLink.parentElement.style.display === 'none') {
+                currentStep = parseInt(visibleNavLinks[0].dataset.step);
+                activeLink = visibleNavLinks[0];
+            }
+            activeLink.classList.add('active');
+            document.querySelector(activeLink.getAttribute('href')).classList.add('active');
+            const currentVisibleIndex = visibleNavLinks.findIndex(link => link.dataset.step == currentStep);
+            prevBtn.style.display = currentVisibleIndex > 0 ? 'inline-block' : 'none';
+            const isOnLastStep = currentVisibleIndex >= totalSteps - 1;
+            nextBtn.textContent = isOnLastStep ? 'إعادة الحساب' : 'التالي';
+        }
+
+        wizardNavLinks.forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                currentStep = parseInt(link.dataset.step);
+                updateWizardUI();
+            });
+        });
+
+        nextBtn.addEventListener('click', () => {
+            const visibleNavLinks = [...wizardNavLinks].filter(link => link.parentElement.style.display !== 'none');
+            const currentVisibleIndex = visibleNavLinks.findIndex(link => link.dataset.step == currentStep);
+            if (currentVisibleIndex < visibleNavLinks.length - 1) {
+                currentStep = parseInt(visibleNavLinks[currentVisibleIndex + 1].dataset.step);
+                updateWizardUI();
+            } else {
+                calculatePrice();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            const visibleNavLinks = [...wizardNavLinks].filter(link => link.parentElement.style.display !== 'none');
+            const currentVisibleIndex = visibleNavLinks.findIndex(link => link.dataset.step == currentStep);
+            if (currentVisibleIndex > 0) {
+                currentStep = parseInt(visibleNavLinks[currentVisibleIndex - 1].dataset.step);
+                updateWizardUI();
+            }
+        });
+
+        const productTypeSelect = document.getElementById('productType');
+        function handleProductTypeChange() {
+            isProgrammaticChange = true;
+            const productType = productTypeSelect.value;
+            const labels = productTypeLabels[productType];
+            const hasInternalPages = productType === 'book' || productType === 'notebook';
+            const isBoxOrBag = productType === 'box_bag';
+            const isCard = productType === 'card';
+            const isFolderLike = isBoxOrBag || isCard;
+            const itemTerm = hasInternalPages ? labels.cover : labels.singular;
+            document.getElementById('step1-title').textContent = `مواصفات الورق الداخلي لـ${labels.singular}`;
+            document.querySelector('.wizard-nav-link[href="#step2"]').textContent = `2. ${itemTerm}`;
+            document.getElementById('cover-label').textContent = `تفعيل حساب ${itemTerm}`;
+            document.getElementById('step2-subheader1').textContent = `أبعاد وتقسيم ${itemTerm}`;
+            document.getElementById('step2-subheader2').textContent = `ورق وطباعة ${itemTerm}`;
+            document.getElementById('step2-subheader3').textContent = `تشطيبات إضافية لـ ${itemTerm}`;
+            document.getElementById('step3-subheader1').textContent = `تشطيبات خاصة (تطبق على ${itemTerm})`;
+
+            // Show/hide sections based on product type
+            document.querySelector('.wizard-nav-link[href="#step1"]').parentElement.style.display = hasInternalPages ? 'flex' : 'none';
+            document.getElementById('collating-section').style.display = hasInternalPages ? 'block' : 'none';
+            document.getElementById('sewing-section').style.display = hasInternalPages ? 'block' : 'none';
+            document.getElementById('binding-section').style.display = hasInternalPages ? 'block' : 'none';
+            document.getElementById('itemQuantityContainer').style.display = isFolderLike ? 'block' : 'none';
+            document.getElementById('coverDepthContainer').style.display = isBoxOrBag ? 'block' : 'none';
+
+            const assemblySection = document.getElementById('assembly-section');
+            const enableAssemblyCheckbox = document.getElementById('enableAssembly');
+            assemblySection.style.display = isFolderLike ? 'block' : 'none';
+            if (!isFolderLike) {
+                enableAssemblyCheckbox.checked = false;
+                enableAssemblyCheckbox.dispatchEvent(new Event('change'));
+            }
+
+            updateFlatSizeInfo();
+
+            document.getElementById('coverSheetSelectLabel').textContent = `مقاس شيت ${itemTerm}`;
+            const coverWidthLabel = document.getElementById('coverWidthLabel');
+            const coverHeightLabel = document.getElementById('coverHeightLabel');
+            if (isBoxOrBag) {
+                coverWidthLabel.textContent = `عرض قاعدة ${labels.singular} (سم)`;
+                coverHeightLabel.textContent = `طول قاعدة ${labels.singular} (سم)`;
+            } else {
+                coverWidthLabel.textContent = hasInternalPages ? `عرض ${labels.cover} مفتوح (سم)` : `عرض ${labels.singular} (سم)`;
+                coverHeightLabel.textContent = hasInternalPages ? `طول ${labels.cover} (سم)` : `طول ${labels.singular} (سم)`;
+            }
+
+            const dieCutCheckbox = document.getElementById('enableDieCutting');
+            if (isBoxOrBag) {
+                dieCutCheckbox.checked = true;
+            } else if(isCard) {
+                dieCutCheckbox.checked = false;
+            }
+            dieCutCheckbox.dispatchEvent(new Event('change'));
+
+            if (!hasInternalPages && currentStep === 1) {
+                currentStep = 2;
+            }
+            updateWizardUI();
+            isProgrammaticChange = false;
+            calculatePrice();
+        }
+        productTypeSelect.addEventListener('change', handleProductTypeChange);
+        handleProductTypeChange();
+    });
+    </script>
+</body>
+</html>
