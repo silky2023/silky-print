@@ -1,0 +1,137 @@
+<div id="step3" class="tab-pane">
+  <h4 class="mb-4">التشطيبات النهائية والتجليد</h4>
+  <div class="section-subheader" id="step3-subheader1">تشطيبات خاصة (تطبق على الغلاف/المنتج)</div>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="finish-option">
+        <div class="d-flex justify-content-between align-items-center">
+          <label class="form-check-label fw-bold" for="enableCoverStamping">بصمة (Hot Stamp)</label>
+          <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableCoverStamping"></div>
+        </div>
+        <div id="cover-stamping-options" class="mt-2 form-section pt-2 border-top">
+          <div class="row">
+            <div class="col-sm-6 mb-3"><label for="coverStampDieCount" class="form-label">عدد الأكلاشيهات</label><input type="number" class="form-control" id="coverStampDieCount"></div>
+            <div class="col-sm-6 mb-3"><label for="coverStampType" class="form-label">نوع الأكلاشيه</label><select id="coverStampType" class="form-select"></select></div>
+            <div class="col-sm-6 mb-3"><label for="coverStampWidth" class="form-label">عرض (سم)</label><input type="number" class="form-control" id="coverStampWidth"></div>
+            <div class="col-sm-6 mb-3"><label for="coverStampHeight" class="form-label">طول (سم)</label><input type="number" class="form-control" id="coverStampHeight"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="finish-option">
+        <div class="d-flex justify-content-between align-items-center">
+          <label class="form-check-label fw-bold" for="enableCoverKofraj">كوفراج (Emboss)</label>
+          <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableCoverKofraj"></div>
+        </div>
+        <div id="cover-kofraj-options" class="mt-2 form-section pt-2 border-top">
+          <div class="row">
+            <div class="col-sm-6 mb-3"><label for="coverKofrajDieCount" class="form-label">عدد الأكلاشيهات</label><input type="number" class="form-control" id="coverKofrajDieCount"></div>
+            <div class="col-sm-6 mb-3"><label for="coverKofrajType" class="form-label">نوع الأكلاشيه</label><select id="coverKofrajType" class="form-select"></select></div>
+            <div class="col-sm-6 mb-3"><label for="coverKofrajWidth" class="form-label">عرض (سم)</label><input type="number" class="form-control" id="coverKofrajWidth"></div>
+            <div class="col-sm-6 mb-3"><label for="coverKofrajHeight" class="form-label">طول (سم)</label><input type="number" class="form-control" id="coverKofrajHeight"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="finish-option">
+        <div class="d-flex justify-content-between align-items-center">
+          <label class="form-check-label fw-bold" for="enableCoverSpotUV">Spot UV</label>
+          <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableCoverSpotUV"></div>
+        </div>
+        <div id="cover-spotuv-options" class="mt-2 form-section pt-2 border-top">
+          <select id="coverSpotUVType" class="form-select"><option value="single">وجه واحد</option><option value="double">وجهين</option></select>
+        </div>
+      </div>
+
+      <div class="finish-option">
+        <div class="d-flex justify-content-between align-items-center">
+          <label class="form-check-label fw-bold" for="enableUvCoating">UV Coating</label>
+          <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableUvCoating"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-subheader">التجميع والتقفيل</div>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="finish-option" id="die-cutting-main-section">
+        <div class="d-flex justify-content-between align-items-center">
+          <label class="form-check-label fw-bold" for="enableDieCutting">تفعيل التكسير</label>
+          <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableDieCutting"></div>
+        </div>
+        <div id="die-cutting-options" class="mt-2 form-section pt-2 border-top">
+          <p class="small text-muted mb-0">
+            سيتم احتساب تكلفة **فرمة التكسير** و**تكلفة التشغيل** تلقائيًا بناءً على مقاس الشيت.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="finish-option" id="assembly-section" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center">
+          <label class="form-check-label fw-bold" for="enableAssembly">لاصق وتقفيل</label>
+          <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableAssembly"></div>
+        </div>
+        <div id="assembly-options" class="mt-2 form-section pt-2 border-top">
+          <label for="assemblyType" class="form-label">نوع اللاصق والتقفيل</label>
+          <select id="assemblyType" class="form-select">
+            <option value="none" selected>بدون</option>
+            <option value="single_point">لاصق بنطة واحدة</option>
+            <option value="double_point">لاصق 2 بنطة</option>
+            <option value="triple_point">لاصق 3 بنطة</option>
+            <option value="bag_handle">لاصق ويد للشنطة</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-subheader">التجليد والتجميع (للكتب)</div>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="finish-option" id="collating-section">
+        <div class="d-flex justify-content-between align-items-center">
+          <label class="form-check-label fw-bold" for="enableCollating">تجميع الملازم</label>
+          <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableCollating" checked></div>
+        </div>
+      </div>
+      <div class="finish-option" id="binding-section">
+        <div class="d-flex justify-content-between align-items-center">
+          <label class="form-check-label fw-bold" for="enableBinding">تجليد</label>
+          <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableBinding" checked></div>
+        </div>
+        <div id="binding-options" class="mt-2 form-section active pt-2 border-top">
+          <label for="bindingType" class="form-label">نوع التجليد</label>
+          <select id="bindingType" class="form-select">
+            <option value="perfect" selected>بشر (Perfect)</option>
+            <option value="hardcover">هارد كفر</option>
+            <option value="sewn">خياطة</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="finish-option" id="sewing-section">
+        <div class="d-flex justify-content-between align-items-center">
+          <label class="form-check-label fw-bold" for="enableSewing">خياطة الملازم</label>
+          <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableSewing"></div>
+        </div>
+      </div>
+      <div class="finish-option" id="slitting-section">
+        <div class="d-flex justify-content-between align-items-center">
+          <label class="form-check-label fw-bold" for="enableSlitting">التشريح</label>
+          <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableSlitting"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="wizard-footer">
+  <button type="button" class="btn btn-secondary" id="prevBtn" style="display: none;">السابق</button>
+  <button type="button" class="btn btn-primary" id="nextBtn">التالي</button>
+</div>

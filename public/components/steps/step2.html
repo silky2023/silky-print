@@ -1,0 +1,112 @@
+<div id="step2" class="tab-pane">
+  <div class="form-check form-switch mb-3">
+    <input class="form-check-input" type="checkbox" id="enableCover" checked>
+    <label class="form-check-label h5" for="enableCover" id="cover-label">تفعيل حساب الغلاف</label>
+  </div>
+  <div id="cover-options" class="form-section active">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="section-subheader" id="step2-subheader1">أبعاد وتقسيم المنتج</div>
+        <div class="row">
+          <div class="col-md-4 mb-3" id="itemQuantityContainer" style="display: none;">
+            <label for="itemQuantity" class="form-label">الكمية المطلوبة</label>
+            <input type="number" id="itemQuantity" class="form-control" value="1000">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="coverWidth" class="form-label" id="coverWidthLabel">عرض الغلاف مفتوح (سم)</label>
+            <input type="number" id="coverWidth" class="form-control" value="28">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="coverHeight" class="form-label" id="coverHeightLabel">طول الغلاف (سم)</label>
+            <input type="number" id="coverHeight" class="form-control" value="21">
+          </div>
+          <div class="col-md-4 mb-3" id="coverDepthContainer" style="display: none;">
+            <label for="coverDepth" class="form-label">الارتفاع (سم)</label>
+            <input type="number" id="coverDepth" class="form-control" value="5">
+          </div>
+          <div class="col-md-12 mb-3" id="flatSizeInfo" style="display: none;">
+            <div class="alert alert-primary small p-2 mb-0">
+              مقاس المسطح المحسوب للطباعة: <strong id="calculatedFlatSize"></strong>
+            </div>
+          </div>
+
+          <div class="col-md-12 mb-3">
+            <label for="coverSheetSelect" class="form-label" id="coverSheetSelectLabel">مقاس شيت الغلاف</label>
+            <select id="coverSheetSelect" class="form-select">
+              <option value="auto" selected>تلقائي (الأفضل تكلفة)</option>
+              <option value="kamel">كامل مقاس (100 × 70 سم)</option>
+              <option value="noss">نص مقاس (70 × 50 سم)</option>
+              <option value="roba">ربع مقاس (50 × 35 سم)</option>
+              <option value="thomn">ثمن مقاس (35 × 25 سم)</option>
+              <option value="a3">A3 مقاس (42 × 29.7 سم)</option>
+              <option value="a4">A4 مقاس (29.7 × 21 سم)</option>
+              <option value="tesaat">تسعات مقاس (33.3 × 23.3 سم)</option>
+              <option value="tegary">تجاري مقاس (30 × 20 سم)</option>
+              <option value="gaier_full">جاير كامل (88 × 66 سم)</option>
+              <option value="gaier_half">جاير نص (66 × 44 سم)</option>
+              <option value="gaier_quarter">جاير ربع (44 × 33 سم)</option>
+              <option value="gaier_eighth">جاير ثمن (33 × 22 سم)</option>
+              <option value="custom">مقاس مخصص...</option>
+            </select>
+            <div id="autoCoverSheetNote" class="auto-choice-note"></div>
+            <div id="customSheetSizeGroup" class="custom-size-group" style="display: none;">
+              <input type="number" id="customSheetWidth" class="form-control" placeholder="عرض (سم)">
+              <input type="number" id="customSheetHeight" class="form-control" placeholder="طول (سم)">
+            </div>
+          </div>
+        </div>
+
+        <div class="section-subheader" id="step2-subheader2">ورق وطباعة المنتج</div>
+        <div class="row">
+          <div class="col-md-6 mb-3"><label for="coverPaperType" class="form-label">نوع الورق</label><select id="coverPaperType" class="form-select"></select></div>
+          <div class="col-md-6 mb-3"><label for="coverPaperGrammage" class="form-label">الجراماج</label><select id="coverPaperGrammage" class="form-select"></select></div>
+          <div class="col-md-6 mb-3"><label for="coverPrintColors" class="form-label">عدد ألوان الطباعة</label><input type="number" id="coverPrintColors" class="form-control" value="4"></div>
+          <div class="col-md-6 mb-3">
+            <label for="coverPrintType" class="form-label">نوع الطباعة</label>
+            <select id="coverPrintType" class="form-select">
+              <option value="single" selected>وجه</option>
+              <option value="double">وجهين</option>
+              <option value="work_and_turn">طبعة وقلبة</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-subheader" id="step2-subheader3">تشطيبات إضافية للمنتج</div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="finish-option">
+              <div class="d-flex justify-content-between align-items-center">
+                <label class="form-check-label fw-bold" for="enableCoverLamination">سلوفان</label>
+                <div class="form-check form-switch p-0"><input class="form-check-input m-0 float-end" type="checkbox" id="enableCoverLamination" checked></div>
+              </div>
+              <div id="cover-lamination-options" class="mt-2 form-section active pt-2 border-top">
+                <div class="row">
+                  <div class="col-sm-auto"><label for="coverLaminationType" class="form-label">نوعه</label>
+                    <select id="coverLaminationType" class="form-select" style="width: auto;">
+                      <option value="matte" selected>مطفي</option>
+                      <option value="glossy">لامع</option>
+                      <option value="silver">فضي</option>
+                      <option value="gold">ذهبي</option>
+                      <option value="laser">ليزر</option>
+                    </select>
+                  </div>
+                  <div class="col-sm-auto"><label for="coverLaminationSides" class="form-label">عدد الأوجه</label>
+                    <select id="coverLaminationSides" class="form-select" style="width: auto;">
+                      <option value="single" selected>وجه واحد</option>
+                      <option value="double">وجهين</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div id="cover_layout_output" class="layout-result"></div>
+            <div id="cover_layout_visuals" class="visuals-container"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

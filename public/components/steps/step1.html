@@ -1,0 +1,97 @@
+<!-- Step 1: Internal Content -->
+<ul class="wizard-nav">
+    <li class="wizard-nav-item"><a class="wizard-nav-link active" href="#step1" data-step="1">1. الورق الداخلي</a></li>
+    <li class="wizard-nav-item"><a class="wizard-nav-link" href="#step2" data-step="2">2. الغلاف / المنتج</a></li>
+    <li class="wizard-nav-item"><a class="wizard-nav-link" href="#step3" data-step="3">3. التشطيبات النهائية</a></li>
+</ul>
+<form id="pricing-form" onsubmit="return false;">
+  <div class="card">
+    <div class="card-body p-4">
+      <div id="step1" class="tab-pane active">
+        <h4 class="mb-4" id="step1-title">مواصفات الورق الداخلي للكتاب</h4>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="section-subheader">المواصفات الأساسية</div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="bookCount" class="form-label">الكمية</label>
+                <input type="number" id="bookCount" class="form-control" value="100">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="bookPages" class="form-label">عدد الصفحات الداخلية</label>
+                <input type="number" id="bookPages" class="form-control" value="64">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="bookWidth" class="form-label">عرض القطعة (سم)</label>
+                <input type="number" id="bookWidth" class="form-control" value="14">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="bookHeight" class="form-label">طول القطعة (سم)</label>
+                <input type="number" id="bookHeight" class="form-control" value="21">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="signatureSize" class="form-label">نوع الملزمة</label>
+                <select id="signatureSize" class="form-select">
+                  <option value="auto" selected>تلقائي (الأفضل تكلفة)</option>
+                  <option value="2">2 صفحات</option>
+                  <option value="4">4 صفحات</option>
+                  <option value="8">8 صفحات</option>
+                  <option value="16">16 صفحة</option>
+                </select>
+                <div id="autoSignatureNote" class="auto-choice-note"></div>
+              </div>
+            </div>
+            <div id="book-calc-info" class="alert alert-info small p-2 mt-2"></div>
+
+            <div class="section-subheader">ورق وطباعة المحتوى الداخلي</div>
+            <div class="row">
+              <div class="col-md-6 mb-3"><label for="paperType" class="form-label">نوع الورق</label><select id="paperType" class="form-select"></select></div>
+              <div class="col-md-6 mb-3"><label for="paperGrammage" class="form-label">الجراماج</label><select id="paperGrammage" class="form-select"></select></div>
+              <div class="col-md-6 mb-3">
+                <label for="sheetSize" class="form-label">مقاس فرخ الطباعة</label>
+                <select id="sheetSize" class="form-select">
+                  <option value="auto" selected>تلقائي (الأفضل تكلفة)</option>
+                  <option value="kamel">كامل مقاس (100 × 70 سم)</option>
+                  <option value="noss">نص مقاس (70 × 50 سم)</option>
+                  <option value="roba">ربع مقاس (50 × 35 سم)</option>
+                  <option value="thomn">ثمن مقاس (35 × 25 سم)</option>
+                  <option value="a3">A3 مقاس (42 × 29.7 سم)</option>
+                  <option value="a4">A4 مقاس (29.7 × 21 سم)</option>
+                  <option value="tesaat">تسعات مقاس (33.3 × 23.3 سم)</option>
+                  <option value="tegary">تجاري مقاس (30 × 20 سم)</option>
+                  <option value="gaier_full">جاير كامل (88 × 66 سم)</option>
+                  <option value="gaier_half">جاير نص (66 × 44 سم)</option>
+                  <option value="gaier_quarter">جاير ربع (44 × 33 سم)</option>
+                  <option value="gaier_eighth">جاير ثمن (33 × 22 سم)</option>
+                  <option value="custom">مقاس مخصص...</option>
+                </select>
+                <div id="autoSheetNote" class="auto-choice-note"></div>
+                <div id="customInternalSheetSizeGroup" class="custom-size-group" style="display: none;">
+                  <input type="number" id="customInternalSheetWidth" class="form-control" placeholder="عرض (سم)">
+                  <input type="number" id="customInternalSheetHeight" class="form-control" placeholder="طول (سم)">
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3"><label for="printColors" class="form-label">عدد ألوان الطباعة</label><input type="number" id="printColors" class="form-control" value="2"></div>
+
+              <div class="col-md-6 mb-3">
+                <label for="printType" class="form-label">نوع الطباعة</label>
+                <select id="printType" class="form-select">
+                  <option value="single">وجه</option>
+                  <option value="double" selected>وجهين</option>
+                  <option value="work_and_turn">طبعة وقلبة</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="section-subheader">الرسم التوضيحي لتقسيم الشيت</div>
+            <div id="internal_layout_output" class="layout-result"></div>
+            <div id="internal_layout_visuals" class="visuals-container"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
